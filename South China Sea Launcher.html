@@ -1,4 +1,112 @@
-<!-- Git Connection Test -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCS Sim Launcher</title>
+  <style>
+    body {
+      background-color: #060f1e;
+      color: #daeeff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      background: #0a1628;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 180, 216, .2);
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #00b4d8;
+      font-size: 28px;
+      text-transform: uppercase;
+    }
+
+    .sub {
+      font-size: 11px;
+      color: #4a7fa5;
+      letter-spacing: 3px;
+      margin-bottom: 32px;
+      text-transform: uppercase;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 16px;
+      flex-direction: column;
+    }
+
+    button {
+      padding: 14px 40px;
+      font-size: 15px;
+      cursor: pointer;
+      background-color: rgba(0, 180, 216, .07);
+      color: #daeeff;
+      border: 1px solid rgba(0, 180, 216, .3);
+      border-radius: 7px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-family: inherit;
+    }
+
+    button:hover {
+      background-color: rgba(0, 180, 216, .15);
+      border-color: #00b4d8;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 180, 216, .2);
+    }
+
+    .desc {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #4a7fa5;
+      letter-spacing: 1px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 11px;
+      color: #1e3a55;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>SCS SIM</h1>
+    <div class="sub">South China Sea Simulator</div>
+    <div class="button-group">
+      <div>
+        <button onclick="launch('game')">Launch Game</button>
+        <div class="desc">Player interface — login &amp; orders</div>
+      </div>
+      <div>
+        <button onclick="launch('board')" style="border-color:rgba(244,162,97,.35);color:#f4a261;">Launch Live
+          Board</button>
+        <div class="desc">Read-only gameboard view</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Opens in new tab via about:blank injection</div>
+  <script>
+    const gameCode = `<!-- Git Connection Test -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -610,6 +718,10 @@
 
     .mt14 {
       margin-top: 14px;
+    }
+
+    .mb6 {
+      margin-bottom: 6px;
     }
 
     .mb10 {
@@ -1650,10 +1762,7 @@
         <div id="p-fleet"></div>
         <div id="p-cons"></div>
         <div class="border-top-bdr mt14">
-          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleFishZonesPanel()">Fish
-            Zone Status</button>
-          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;"
-            onclick="toggleGoldTransferPanel()">Transfer Gold</button>
+          <button class="btn btn-o btn-sm btn-full mb6" onclick="toggleFishZonesPanel()">Fish Zone Status</button>
           <button class="btn btn-o btn-sm btn-full" onclick="handleRefresh()">↻ Refresh</button>
         </div>
       </div>
@@ -1769,37 +1878,6 @@
             <div id="p-fz"></div>
           </div>
         </div>
-        <div id="panel-gold-transfer" class="hidden">
-          <div class="card">
-            <div class="card-title">Gold Transfer
-              <button class="btn btn-o btn-sm" onclick="toggleGoldTransferPanel()">✕ Close</button>
-            </div>
-            <div class="rn">Send gold to another country anytime. Both sides are logged — the GM can see all transfers.
-            </div>
-            <div class="g2 mt8">
-              <div class="fg"><label>Send To</label>
-                <select id="gt-to" title="Country to send gold to">
-                  <option value="">— select —</option>
-                </select>
-              </div>
-              <div class="fg"><label>Amount (g)</label>
-                <input type="number" id="gt-amt" min="1" placeholder="e.g. 5" style="width:100px;">
-              </div>
-            </div>
-            <div class="fg"><label>Message (optional)</label>
-              <input type="text" id="gt-msg-txt" placeholder="e.g. Alliance payment">
-            </div>
-            <div class="fb mt8">
-              <span class="tm mu fs12">Available: <b class="tgo" id="gt-avail">—</b>g</span>
-              <button class="btn btn-g" onclick="submitGoldTransfer()">Send Gold</button>
-            </div>
-            <div id="gt-result" class="hidden mt8"></div>
-            <div class="dv"></div>
-            <div class="stl">Transfer History (this session)</div>
-            <div id="gt-log" class="tm mu" style="font-size:11px;max-height:160px;overflow-y:auto;">No transfers yet.
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -1852,16 +1930,6 @@
             <div class="card-title">Pending Orders</div>
             <div id="orders-list"></div>
             <div id="orders-none" class="mu" style="font-size:13px;padding:8px 0;">No pending orders.</div>
-          </div>
-          <div class="card" id="gm-approved-moves-card">
-            <div class="card-title">Approved Movement Orders
-              <button class="btn btn-o btn-sm" onclick="gmClearApproved()">Clear All</button>
-            </div>
-            <div class="rn">Tick off individual spring movement orders as you review them. Approved moves are recorded
-              here for reference — the actual tile changes happen when you click Approve &amp; Next Season.</div>
-            <div id="approved-moves-list">
-              <div class="mu fs12">No spring orders yet.</div>
-            </div>
           </div>
         </div>
         <div id="gt-troops" class="tp">
@@ -2110,6 +2178,13 @@
             <button class="btn btn-g btn-sm" onclick="pushTilesToDB()">Push Tiles to Database</button>
             <div id="tile-msg" class="mt8 hidden"></div>
           </div>
+          <div class="card">
+            <div class="card-title">Fish Zone Config</div>
+            <div class="rn">Push fish zone data to reset capacities and initial stocks in the database.
+            </div>
+            <button class="btn btn-g btn-sm" onclick="pushFishZonesToDB()">Push Fish Zones to Database</button>
+            <div id="fish-msg" class="mt8 hidden"></div>
+          </div>
         </div>
         <div id="gt-settings" class="tp">
           <div class="card">
@@ -2303,47 +2378,44 @@
       'toxic_spill': { icon: '☣️', name: 'Toxic Spill', desc: 'Target a fishing zone — no one can fish there next Fall. Play anytime.', target: 'fishing_zone' },
       'bonus_fish': { icon: '🐟', name: 'Bonus Fish', desc: 'Add 2 fish to a target fishing zone, raising its stock. Play anytime.', target: 'fishing_zone' },
       'sabotage_base': { icon: '🔧', name: 'Sabotage Base', desc: 'Target enemy base cannot spawn new ships for one Winter. GM resolves. Play anytime.', target: 'enemy_base' },
-      'spy': { icon: '🕵️', name: 'Spy', desc: 'See one country\'s currently held spy cards. GM tells you privately. Play anytime.', target: 'enemy_country' },
+      'spy': { icon: '🕵️', name: 'Spy', desc: 'See one country\\'s currently held spy cards. GM tells you privately. Play anytime.', target: 'enemy_country' },
       'sanction': { icon: '📜', name: 'Sanction', desc: 'Target country earns 1 less base income next Fall. Play anytime.', target: 'enemy_country' },
       'naval_superiority': { icon: '⚔️', name: 'Naval Superiority', desc: 'Your ships gain +1 attack for one combat this turn. Play before combat.', target: 'none' },
-      'nothing': { icon: '🃏', name: 'Nothing', desc: 'This card has no effect. Better luck next time.', target: 'none' },
     };
-
-    /** Picks a random card type from the currently allowed pool */
-    function randomCardKey() {
-      const allowed = D.cardConfig?.allowed_types || [];
-      const pool = allowed.length > 0 ? allowed : Object.keys(SPY_CARDS);
-      return pool[Math.floor(Math.random() * pool.length)];
-    }
     const ZONE_COLORS = { "China": "#c1121f", "Vietnam": "#d4a017", "Taiwan": "#3a86ff", "Philippines": "#8338ec", "Malaysia": "#fb5607", "Indonesia": "#06d6a0", "Cambodia": "#bc6c25", "Thailand": "#e9c46a", "Blue Neutral Zone": "#4cc9f0", "Purple Neutral Zone": "#9d4edd", "Orange Neutral Zone": "#f77f00", "Green Neutral Zone": "#2d9e5f" };
 
     // Carrying capacity and initial fish per zone (from rulebook)
     const ZONE_FISH_DATA = {
-      'China': { cap: 7, initial: 3 },
-      'Taiwan': { cap: 4, initial: 2 },
-      'Philippines': { cap: 6, initial: 2 },
-      'Malaysia': { cap: 5, initial: 2 },
-      'Indonesia': { cap: 5, initial: 3 },
-      'Thailand': { cap: 6, initial: 3 },
-      'Cambodia': { cap: 4, initial: 2 },
-      'Vietnam': { cap: 6, initial: 2 },
-      'Green Neutral Zone': { cap: 15, initial: 6 },
-      'Orange Neutral Zone': { cap: 15, initial: 6 },
-      'Blue Neutral Zone': { cap: 15, initial: 6 },
-      'Purple Neutral Zone': { cap: 15, initial: 6 },
+      'China': { cap: 16, initial: 4 },
+      'Taiwan': { cap: 6, initial: 2 },
+      'Philippines': { cap: 10, initial: 3 },
+      'Malaysia': { cap: 8, initial: 2 },
+      'Indonesia': { cap: 8, initial: 2 },
+      'Thailand': { cap: 12, initial: 3 },
+      'Cambodia': { cap: 6, initial: 2 },
+      'Vietnam': { cap: 10, initial: 3 },
+      'Green Neutral Zone': { cap: 30, initial: 5 },
+      'Orange Neutral Zone': { cap: 30, initial: 5 },
+      'Blue Neutral Zone': { cap: 30, initial: 5 },
+      'Purple Neutral Zone': { cap: 30, initial: 5 },
     };
 
     /**
      * Logistic growth model: next turn's fish population.
      * Uses standard fisheries logistic: N(t+1) = N(t) + r*N(t)*(1 - N(t)/K) - harvest
-     * Growth rate r = 0.4 (moderate replenishment each turn)
+     * Growth rate r = 1.0 — tuned so that populations can sustain meaningful
+     * harvesting while still showing the classic S-curve (steep climb that
+     * tapers near carrying capacity).
+     *
+     * Maximum sustainable yield (MSY) = r*K/4, which gives:
+     *   Small zones  (K=6-8):  MSY ≈ 1.5–2.0 fish/turn  → 1-2 boats sustainable
+     *   Medium zones (K=10-16):MSY ≈ 2.5–4.0 fish/turn  → 2-4 boats sustainable
+     *   Neutral zones (K=30):  MSY ≈ 7.5 fish/turn       → 7 boats sustainable
      */
-    function projectFish(current, cap, harvest, asInt = false) {
-      const r = 0.4;
+    function projectFish(current, cap, harvest) {
+      const r = 1.0;
       const growth = r * current * (1 - current / cap);
-      const raw = current + growth - harvest;
-      // asInt=true for DB writes; false keeps one decimal for simulator display
-      return asInt ? Math.max(0, Math.floor(raw)) : Math.max(0, Math.round(raw * 10) / 10);
+      return Math.max(0, Math.round((current + growth - harvest) * 10) / 10);
     }
 
     /** Returns health label and color for a stock level */
@@ -2391,7 +2463,7 @@
     const SEASON_ORDER = ['fall', 'winter', 'spring', 'summer'];
 
     // Cleans the API keys to remove hidden characters (prevents fetch errors)
-    function apiKey() { return (SB_SVC || SB_ANON).replace(/[^\x20-\x7E]/g, ''); }
+    function apiKey() { return (SB_SVC || SB_ANON).replace(/[^\\x20-\\x7E]/g, ''); }
 
     /**
      * Core Fetch Wrapper for Supabase REST API
@@ -2408,12 +2480,11 @@
         'X-Client-Info': 'scs-sim/1.0',
         ...(opts.headers || {})
       };
-      const res = await fetch(url, {
+      const _proxiedUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+      const res = await fetch(_proxiedUrl, {
         method: opts.method || 'GET',
         headers,
         body: opts.body ? JSON.stringify(opts.body) : undefined,
-        mode: 'cors',
-        credentials: 'omit'
       });
       if (!res.ok) { const e = await res.text(); throw new Error(e); }
       const t = await res.text(); return t ? JSON.parse(t) : null;
@@ -2425,7 +2496,8 @@
      * @param {object} payload - Arguments passed to the function
      */
     async function rpc(name, payload) {
-      const res = await fetch(SB_URL.replace(/[^\x20-\x7E]/g, '') + '/rest/v1/rpc/' + name, {
+      const _rpcTarget = SB_URL.replace(/[^\\x20-\\x7E]/g, '') + '/rest/v1/rpc/' + name;
+      const res = await fetch('https://corsproxy.io/?' + encodeURIComponent(_rpcTarget), {
         headers: { 'apikey': apiKey(), 'Authorization': 'Bearer ' + apiKey(), 'Content-Type': 'application/json' },
         method: 'POST', body: JSON.stringify(payload)
       });
@@ -2599,7 +2671,7 @@
         setSeasonChip(D.cfg.season);
         if (CU.role === 'gm') renderGM(); else renderPlayer();
         hideLoad();
-      } catch (e) { hideLoad(); alert('Refresh error: ' + e.message); }
+      } catch (e) { hideLoad(); alert('Refresh error: ' + e.message + '\\n' + e.stack); }
     }
 
     // ─── PLAYER RENDER ───────────────────────────────────────────────
@@ -2613,7 +2685,7 @@
       setSeasonChip(s);
       renderSidebar();
       renderBroadcastBanner();
-      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
+      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
       if (s !== 'setup' && D.myOrders.length > 0) {
         const msgEl = document.getElementById('p-msg');
         msgEl.innerHTML = '<div class="al as"><b>Orders Submitted!</b> Waiting for GM approval. <button class="btn btn-sm btn-o" style="margin-left:10px;vertical-align:middle;padding:3px 8px;font-size:10px;" onclick="cancelMyOrders()">Withdraw Orders</button></div>';
@@ -2632,21 +2704,9 @@
       if (!confirm('Withdraw your submitted orders?')) return;
       showLoad('Withdrawing…');
       try {
-        await sb(
-          'pending_orders?country=eq.' + encodeURIComponent(CU.country) +
-          '&season=eq.' + encodeURIComponent(D.cfg.season) +
-          '&turn=eq.' + D.cfg.turn,
-          { method: 'DELETE', prefer: 'return=representation' }
-        );
+        await sb('pending_orders?country=eq.' + encodeURIComponent(CU.country) + '&season=eq.' + D.cfg.season + '&turn=eq.' + D.cfg.turn, { method: 'DELETE', prefer: 'return=minimal' });
         await handleRefresh();
-        // After refresh, check if orders are still there (silent RLS block)
-        if (D.myOrders.length > 0) {
-          showMsg('Withdraw failed — orders still present. Ask your GM to withdraw them, or run this SQL in Supabase:<br><code style="font-size:10px;">CREATE POLICY "anon delete own orders" ON pending_orders FOR DELETE TO anon USING (true);</code>', 'ae');
-        }
-      } catch (e) {
-        hideLoad();
-        showMsg('Withdraw error: ' + e.message, 'ae');
-      }
+      } catch (e) { hideLoad(); alert(e.message); }
     }
 
     function renderSidebar() {
@@ -2661,8 +2721,8 @@
           + '<span style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--gold);">'
           + '⚓ ' + fl.name + ' <span style="font-size:10px;opacity:.6;">(' + ships.length + ' ship' + (ships.length !== 1 ? 's' : '') + ')</span></span>'
           + '<div style="display:flex;gap:3px;">'
-          + '<button class="btn btn-o btn-sm" style="padding:2px 7px;font-size:9px;" onclick="openEditFleet(\'' + fl.id + '\')">Edit</button>'
-          + '<button class="btn btn-d btn-sm" style="padding:2px 7px;font-size:9px;" onclick="deleteFleet(\'' + fl.id + '\')">✕</button>'
+          + '<button class="btn btn-o btn-sm" style="padding:2px 7px;font-size:9px;" onclick="openEditFleet(\\'' + fl.id + '\\')">Edit</button>'
+          + '<button class="btn btn-d btn-sm" style="padding:2px 7px;font-size:9px;" onclick="deleteFleet(\\'' + fl.id + '\\')">✕</button>'
           + '</div></div>';
         ships.forEach(ship => {
           const info = SHIP_STATS[ship.type] || {};
@@ -2725,7 +2785,6 @@
 
     function rSetup(c) {
       const eezTiles = EEZ[c] || [];
-      document.getElementById('setup-eez-tiles').textContent = eezTiles.join(', ');
       const placed = D.myBases.find(b => b.turn_started === 0);
       if (placed) {
         document.getElementById('panel-setup').innerHTML = '<div class="card">'
@@ -2735,13 +2794,15 @@
           + '</div>';
         return;
       }
+      const eezEl = document.getElementById('setup-eez-tiles');
+      if (eezEl) eezEl.textContent = eezTiles.join(', ');
       selectedSetupTile = null;
       // Build tile picker
       let tilesHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:14px 0;">';
       eezTiles.forEach(tid => {
         const zone = tz(tid) || c;
         const zc = ZONE_COLORS[zone] || '#555';
-        tilesHtml += '<div id="setup-tile-' + tid + '" onclick="selectSetupTile(\'' + tid + '\')" style="cursor:pointer;border:2px solid ' + zc + '40;border-radius:8px;padding:12px;text-align:center;transition:all .18s;background:' + zc + '08;">'
+        tilesHtml += '<div id="setup-tile-' + tid + '" onclick="selectSetupTile(\\'' + tid + '\\')" style="cursor:pointer;border:2px solid ' + zc + '40;border-radius:8px;padding:12px;text-align:center;transition:all .18s;background:' + zc + '08;">'
           + '<div style="font-family:var(--fh);font-size:22px;font-weight:700;color:' + zc + ';margin-bottom:4px;">' + tid + '</div>'
           + '<div style="font-family:var(--fm);font-size:9px;color:var(--text2);">' + zone + '</div>'
           + '<div style="font-family:var(--fm);font-size:9px;color:var(--text2);margin-top:2px;">Adj: ' + (tadj(tid).slice(0, 4).join(', ')) + (tadj(tid).length > 4 ? '…' : '') + '</div>'
@@ -2824,9 +2885,9 @@
           + '</div>'
           + '<div class="fz-ct">' + (isToxic ? 'blocked' : cnt > 0 ? cnt + ' boat' + (cnt > 1 ? 's' : '') : 'none') + '</div>'
           + '<div class="ni">'
-          + '<button onclick="adjFish(\'' + z + '\',-1)" ' + (on ? '' : 'disabled') + '>-</button>'
+          + '<button onclick="adjFish(\\'' + z + '\\',-1)" ' + (on ? '' : 'disabled') + '>-</button>'
           + '<input type="number" id="fish-' + zi(z) + '" value="0" min="0" max="' + (on ? cnt : 0) + '" style="width:36px;text-align:center;" ' + (on ? '' : 'disabled') + ' oninput="updFish()">'
-          + '<button onclick="adjFish(\'' + z + '\',1)" ' + (on ? '' : 'disabled') + '>+</button>'
+          + '<button onclick="adjFish(\\'' + z + '\\',1)" ' + (on ? '' : 'disabled') + '>+</button>'
           + '</div></div>';
       });
       if (unmapped.length) html += '<div class="al aw" style="font-size:11px;margin-top:8px;">' + unmapped.length + ' boat(s) on unmapped tiles: ' + unmapped.map(s => s.id).join(', ') + '. Ask GM.</div>';
@@ -2867,9 +2928,9 @@
           + '<div style="display:flex;align-items:center;gap:8px;">'
           + '<div class="shop-cost">' + info.cost + 'g</div>'
           + '<div class="ni">'
-          + '<button onclick="adjCart(\'' + n + '\',-1)">-</button>'
+          + '<button onclick="adjCart(\\'' + n + '\\',-1)">-</button>'
           + '<input type="number" id="cart-' + n.replace(/ /g, '_') + '" value="0" min="0" style="width:36px;text-align:center;" oninput="updCart()">'
-          + '<button onclick="adjCart(\'' + n + '\',1)">+</button>'
+          + '<button onclick="adjCart(\\'' + n + '\\',1)">+</button>'
           + '</div></div></div>';
       }).join(''); updCart();
       rCardShop();
@@ -2928,7 +2989,7 @@
           + (canMove.length ?
             '<div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;min-width:120px;">'
             + '<label style="margin:0;font-size:10px;">Move fleet to tile</label>'
-            + '<input type="text" id="fmv-' + fl.id + '" placeholder="tile #" style="width:90px;text-align:center;" oninput="valFmv(\'' + fl.id + '\',' + minSpeed + ')">'
+            + '<input type="text" id="fmv-' + fl.id + '" placeholder="tile #" style="width:90px;text-align:center;" oninput="valFmv(\\'' + fl.id + '\\',' + minSpeed + ')">'
             + '<div id="fmvv-' + fl.id + '" style="font-size:10px;font-family:var(--fm);"></div>'
             + '</div>'
             : '<div style="padding:8px;"><span class="badge bgo">Cannot move</span></div>')
@@ -2954,7 +3015,7 @@
             + (!locked ?
               '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;min-width:110px;">'
               + '<label style="margin:0;font-size:10px;">Destination</label>'
-              + '<input type="text" id="mv-' + ship.id + '" placeholder="' + (ship.tile || 'stay') + '" style="width:90px;text-align:center;" oninput="valMv(\'' + ship.id + '\')">'
+              + '<input type="text" id="mv-' + ship.id + '" placeholder="' + (ship.tile || 'stay') + '" style="width:90px;text-align:center;" oninput="valMv(\\'' + ship.id + '\\')">'
               + '<div id="mvv-' + ship.id + '" style="font-size:10px;font-family:var(--fm);"></div>'
               + '</div>'
               : '')
@@ -3135,9 +3196,8 @@
     }
     function renderOrders() {
       const list = document.getElementById('orders-list'), none = document.getElementById('orders-none');
-      if (!D.allOrders.length) { list.innerHTML = ''; none.classList.remove('hidden'); renderApprovedMoves(); return; }
+      if (!D.allOrders.length) { list.innerHTML = ''; none.classList.remove('hidden'); return; }
       none.classList.add('hidden');
-      const isSpringSeason = D.cfg.season === 'spring';
       list.innerHTML = D.allOrders.map(o => {
         const p = o.payload; let detail = '';
         if (p.fish) detail = 'Fish: ' + Object.entries(p.fish).map(([z, v]) => z + ':' + v).join(', ') + ' | Base:' + p.base_income + 'g';
@@ -3145,40 +3205,23 @@
           + (p.spawnBase ? ' spawn@tile ' + p.spawnBase : '');
         else if (p.base_construction) detail = 'Base construction — anchor: ' + p.base_construction.anchor_ship + ' (8g)';
         else if (p.moves) {
-          // Build move rows with approve checkboxes when in spring
           const fps = Object.entries(p.fleetMoves || {}).map(([fid, fm]) => {
             const repId = fm.ship_ids?.[0]; const repShip = D.allTroops.find(s => s.id === repId);
             const path = bfs(repShip?.tile, fm.dest); const dist = path ? path.length - 1 : '?';
-            const key = (o.id || o.country) + '::fleet::' + fid;
-            const safeKey = key.replace(/[^a-z0-9]/gi, '_');
-            const approved = !!_approvedMoves[key];
-            const label = 'Fleet "' + fm.name + '"';
-            const moveStr = '<b>' + label + '</b> → tile ' + fm.dest + ' (' + dist + ' steps, ' + fm.ship_ids.length + ' ships)';
-            if (!isSpringSeason) return moveStr;
-            return '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">'
-              + '<input type="checkbox" id="amc-' + safeKey + '" ' + (approved ? 'checked' : '') + ' onchange="gmApproveMove(\'' + (o.id || o.country) + '\',\'fleet::' + fid + '\',\'' + (repShip?.tile || '?') + '\',\'' + fm.dest + '\',\'' + label.replace(/'/g, '') + '\')">'
-              + moveStr + '</label>';
+            return '<b>Fleet "' + fm.name + '"</b> → tile ' + fm.dest + ' (' + dist + ' steps, ' + fm.ship_ids.length + ' ships)';
           });
           const sps = Object.entries(p.moves || {}).filter(([id, m]) => !m.fleet).map(([id, m]) => {
             const info = SHIP_STATS[m.type] || {}; const path = bfs(m.from, m.to); const dist = path ? path.length - 1 : '?';
             const ok = m.type === 'Destroyer' || (typeof dist === 'number' && dist <= info.speed);
-            const key = (o.id || o.country) + '::' + id;
-            const safeKey = key.replace(/[^a-z0-9]/gi, '_');
-            const approved = !!_approvedMoves[key];
-            const moveStr = id + ': ' + m.from + '→' + m.to + ' (' + dist + ' steps) ' + (ok ? '<span class="badge bgr">OK</span>' : '<span class="badge bgo">REVIEW</span>');
-            if (!isSpringSeason) return moveStr;
-            return '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">'
-              + '<input type="checkbox" id="amc-' + safeKey + '" ' + (approved ? 'checked' : '') + ' onchange="gmApproveMove(\'' + (o.id || o.country) + '\',\'' + id + '\',\'' + m.from + '\',\'' + m.to + '\',\'' + id + '\')"> '
-              + moveStr + '</label>';
+            return id + ': ' + m.from + '→' + m.to + ' (' + dist + ' steps) ' + (ok ? '<span class="badge bgr">OK</span>' : '<span class="badge bgo">REVIEW</span>');
           });
-          detail = [...fps, ...sps].join('<br>') || 'No moves';
+          detail = [...fps, ...sps].join(' | ') || 'No moves';
         }
         return '<div class="order-row"><div class="order-c">' + (FLAGS[o.country] || '') + ' ' + o.country + '</div>'
           + '<div class="flex1 fs12 mu">' + detail + '</div>'
           + '<div class="fb gap8"><div class="tm mu fs10">' + ft(o.submitted_at) + '</div>'
-          + '<button class="btn btn-d btn-sm p1-5" onclick="gmDelOrd(\'' + o.country + '\')">✕</button></div></div>';
+          + '<button class="btn btn-d btn-sm p1-5" onclick="gmDelOrd(\\'' + o.country + '\\')">✕</button></div></div>';
       }).join('');
-      renderApprovedMoves();
     }
     /**
      * GM logic for rendering all ships/units in the units tab
@@ -3205,11 +3248,11 @@
           '<td><div class="fb gap3"><span class="tm fs10">' + ship.hp + '/' + (info.hp || '?') + '</span><div class="hpb"><div class="hpf ' + hc + '" style="width:' + pct + '%"></div></div></div></td>' +
           '<td>' + (inC ? '<span class="badge br">!</span> ' : '') + (anc ? '<span class="badge bam">⚓</span> ' : '') + (ship.disabled ? '<span class="badge bgo">MOVE OFF</span> ' : '<span class="badge bgr">ON</span> ') + (ship.attack_disabled ? '<span class="badge br">ATK OFF</span>' : '') + '</td>' +
           '<td><div class="fl gap3">' +
-          '<button class="btn btn-o btn-sm" onclick="gmHP(\'' + ship.id + '\')">HP</button>' +
-          '<button class="btn btn-o btn-sm" onclick="gmMv(\'' + ship.id + '\')">MV</button>' +
-          '<button class="btn btn-o btn-sm" onclick="gmDis(\'' + ship.id + '\')" title="Toggle move disabled">' + (ship.disabled ? 'MOV ON' : 'MOV OFF') + '</button>' +
-          '<button class="btn btn-o btn-sm" onclick="gmDisAtk(\'' + ship.id + '\')" title="Toggle attack disabled">' + (ship.attack_disabled ? 'ATK ON' : 'ATK OFF') + '</button>' +
-          '<button class="btn btn-d btn-sm" onclick="gmSink(\'' + ship.id + '\')">✕</button>' +
+          '<button class="btn btn-o btn-sm" onclick="gmHP(\\'' + ship.id + '\\')">HP</button>' +
+          '<button class="btn btn-o btn-sm" onclick="gmMv(\\'' + ship.id + '\\')">MV</button>' +
+          '<button class="btn btn-o btn-sm" onclick="gmDis(\\'' + ship.id + '\\')" title="Toggle move disabled">' + (ship.disabled ? 'MOV ON' : 'MOV OFF') + '</button>' +
+          '<button class="btn btn-o btn-sm" onclick="gmDisAtk(\\'' + ship.id + '\\')" title="Toggle attack disabled">' + (ship.attack_disabled ? 'ATK ON' : 'ATK OFF') + '</button>' +
+          '<button class="btn btn-d btn-sm" onclick="gmSink(\\'' + ship.id + '\\')">✕</button>' +
           '</div></td></tr>';
       }).join('');
     }
@@ -3228,8 +3271,8 @@
           '<td class="tm fs10">' + (b.anchor_ship || '—') + '</td>' +
           '<td class="tm">' + (b.turn_started || '—') + '</td>' +
           '<td><div class="fl gap3">' +
-          (b.status === 'construction' ? '<button class="btn btn-o btn-sm" onclick="gmActBase(\'' + b.id + '\')">Activate</button>' : '') +
-          (b.is_starting ? '<span class="mu" style="font-size:10px;padding:0 4px;" title="Protected — cannot be deleted">🛡</span>' : '<button class="btn btn-d btn-sm" onclick="gmDelBase(\'' + b.id + '\')">✕</button>') +
+          (b.status === 'construction' ? '<button class="btn btn-o btn-sm" onclick="gmActBase(\\'' + b.id + '\\')">Activate</button>' : '') +
+          (b.is_starting ? '<span class="mu" style="font-size:10px;padding:0 4px;" title="Protected — cannot be deleted">🛡</span>' : '<button class="btn btn-d btn-sm" onclick="gmDelBase(\\'' + b.id + '\\')">✕</button>') +
           '</div></td></tr>';
       }).join('');
     }
@@ -3314,7 +3357,7 @@
             const capVal = row ? row.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
             const zoneOrders = orders.filter(o => !toxicZones.has(z));
             const harvestForZone = zoneOrders.reduce((sum, o) => sum + (o.payload?.fish?.[z] || 0), 0);
-            const nextStock = projectFish(curStock, capVal, harvestForZone, true);
+            const nextStock = projectFish(curStock, capVal, harvestForZone);
             await sb('fish_zones', { method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal', body: { zone: z, stock: nextStock, capacity: capVal, last_updated_turn: turn } });
           }
           log.push('Fish stocks updated for all zones.');
@@ -3379,10 +3422,8 @@
           await loadGMData();
           // Log any conflicts discovered after the move
           getConflicts().forEach(x => log.push('⚠ CONFLICT tile ' + x.tile + ': ' + x.countries.join(' vs ')));
-          // Clear the approved moves cache now that moves are committed
-          _approvedMoves = {};
-          saveApprovedMoves();
         } else if (s === 'summer') {
+          // Summer Phase: Resolve combat manually and prepare for Fall income
           const sanctionedCountries = new Set((D.activeEffects || []).filter(e => e.type === 'sanction').map(e => e.target_country));
           log.push('Summer acknowledged. Resolve combat manually.');
           for (const c of COUNTRIES) {
@@ -3394,17 +3435,6 @@
             await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: c, turn: turn + 1, type: 'income', amount: income, note: '+' + income + 'g (base income' + (sanctioned ? ', -1 sanctioned' : '') + ')' } });
             log.push(c + ': +' + income + 'g (base)' + (sanctioned ? ' ⚠ SANCTIONED (-1)' : ''));
           }
-          // Fish replenishment every turn — grow stocks with 0 harvest (no fishing in summer)
-          for (const z of ALL_ZONES) {
-            const row = (D.fishStocks || []).find(f => f.zone === z);
-            const curStock = row ? row.stock : (ZONE_FISH_DATA[z]?.initial ?? 0);
-            const capVal = row ? row.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
-            const nextStock = projectFish(curStock, capVal, 0, true);
-            if (nextStock !== curStock) {
-              await sb('fish_zones', { method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal', body: { zone: z, stock: nextStock, capacity: capVal, last_updated_turn: turn } });
-            }
-          }
-          log.push('Fish stocks replenished (summer growth).');
         }
 
         // Clear orders and advance the global state
@@ -3456,50 +3486,6 @@
         document.getElementById('adj-a').value = ''; document.getElementById('adj-r').value = '';
       } catch (e) { hideLoad(); alert(e.message); }
     }
-    // Approved moves — stored in memory (cleared on refresh, persisted per session via localStorage key)
-    let _approvedMoves = JSON.parse(localStorage.getItem('scs_approved_moves') || '{}');
-
-    function saveApprovedMoves() {
-      try { localStorage.setItem('scs_approved_moves', JSON.stringify(_approvedMoves)); } catch (e) { /* non-fatal */ }
-    }
-
-    function gmApproveMove(orderId, shipId, from, to, label) {
-      const key = orderId + '::' + shipId;
-      if (_approvedMoves[key]) {
-        delete _approvedMoves[key];
-      } else {
-        _approvedMoves[key] = { orderId, shipId, from, to, label, approvedAt: new Date().toLocaleTimeString() };
-      }
-      saveApprovedMoves();
-      renderApprovedMoves();
-      // Also update the checkbox state in the orders list
-      const cb = document.getElementById('amc-' + key.replace(/[^a-z0-9]/gi, '_'));
-      if (cb) cb.checked = !!_approvedMoves[key];
-    }
-
-    function renderApprovedMoves() {
-      const el = document.getElementById('approved-moves-list');
-      if (!el) return;
-      const entries = Object.values(_approvedMoves);
-      if (!entries.length) { el.innerHTML = '<div class="mu fs12">No moves approved yet.</div>'; return; }
-      el.innerHTML = entries.map(m =>
-        '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid rgba(46,196,182,.2);border-radius:6px;margin-bottom:5px;background:rgba(46,196,182,.04);">'
-        + '<span style="color:var(--green);font-size:14px;">✓</span>'
-        + '<div style="flex:1;font-family:var(--fm);font-size:11px;">'
-        + '<b>' + m.label + '</b>: tile ' + m.from + ' → ' + m.to
-        + '</div>'
-        + '<span style="font-family:var(--fm);font-size:9px;color:var(--text2);">' + m.approvedAt + '</span>'
-        + '<button class="btn btn-d btn-sm" style="padding:2px 6px;font-size:9px;" onclick="gmApproveMove(\'' + m.orderId + '\',\'' + m.shipId + '\',\'' + m.from + '\',\'' + m.to + '\',\'' + m.label.replace(/'/g, "") + '\')">✕</button>'
-        + '</div>'
-      ).join('');
-    }
-
-    function gmClearApproved() {
-      _approvedMoves = {};
-      saveApprovedMoves();
-      renderApprovedMoves();
-    }
-
     /**
      * GM Action: Deletes current season orders for a specific country.
      */
@@ -3593,6 +3579,15 @@
         const m = document.getElementById('tile-msg'); showAl(m, rows.length + ' tiles pushed.', 'as'); setTimeout(() => m.classList.add('hidden'), 4000);
       } catch (e) { hideLoad(); alert(e.message); }
     }
+    async function pushFishZonesToDB() {
+      showLoad('Pushing Fish Zones…');
+      try {
+        await sb('fish_zones?zone=not.is.null', { method: 'DELETE', prefer: 'return=minimal' });
+        const rows = Object.entries(ZONE_FISH_DATA).map(([zone, data]) => ({ zone, capacity: data.cap, stock: data.initial, last_updated_turn: 0 }));
+        await sb('fish_zones', { method: 'POST', prefer: 'return=minimal', body: rows }); hideLoad();
+        const m = document.getElementById('fish-msg'); showAl(m, rows.length + ' fish zones pushed.', 'as'); setTimeout(() => m.classList.add('hidden'), 4000);
+      } catch (e) { hideLoad(); alert(e.message); }
+    }
     async function gmReset() {
       if (!confirm('RESET ALL GAME DATA?')) return; showLoad('Resetting…');
       try {
@@ -3625,7 +3620,7 @@
      * @param {Array[]} rows - Data rows to export
      * @param {string} name - Filename for the download
      */
-    function dlCSV(rows, name) { const csv = rows.map(r => r.map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(',')).join('\n'); const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = name; a.click(); }
+    function dlCSV(rows, name) { const csv = rows.map(r => r.map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(',')).join('\\n'); const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = name; a.click(); }
     function exTroops() { const rows = [['ID', 'Country', 'Type', 'Tile', 'Zone', 'Fleet', 'HP', 'MaxHP']]; D.allTroops.forEach(s => { const fl = D.allFleets.find(f => f.ship_ids && f.ship_ids.includes(s.id)); rows.push([s.id, s.country, s.type, s.tile, tz(s.tile) || '', fl ? fl.name : '', s.hp, s.max_hp]); }); dlCSV(rows, 'troops_t' + D.cfg.turn + '.csv'); }
     function exEco() { const rows = [['Country', 'Gold', 'BaseIncome']]; D.allEco.forEach(e => rows.push([e.country, e.gold, BASE_INCOME[e.country]])); dlCSV(rows, 'eco_t' + D.cfg.turn + '.csv'); }
     function exBases() { const rows = [['ID', 'Country', 'Tile', 'Zone', 'Status']]; D.allBases.forEach(b => rows.push([b.id, b.country, b.tile, tz(b.tile) || '', b.status])); dlCSV(rows, 'bases_t' + D.cfg.turn + '.csv'); }
@@ -3723,8 +3718,8 @@
           + '<div class="fz-sim">'
           + '<div class="fz-sim-title">Harvest Simulator</div>'
           + '<div class="fz-sim-row">'
-          + '<span class="fz-sim-label">Fish removed per turn:</span>'
-          + '<input class="fz-sim-input" id="' + id + '-inp" type="number" min="0" max="' + cap + '" value="' + baseHarvest + '" oninput="updateFzSim(\'' + z + '\',\'' + containerId + '\')" />'
+          + '<span class="fz-sim-label" title="Comma-separated sequence of harvests (e.g. 1,2,0)">Harvest seq:</span>'
+          + '<input class="fz-sim-input" id="' + id + '-inp" type="text" value="' + baseHarvest + '" oninput="updateFzSim(\\'' + z + '\\',\\'' + containerId + '\\')" style="width:70px;text-align:center;" />'
           + '<span class="fz-sim-label" id="' + id + '-hinf" style="color:#f4a261;"></span>'
           + '</div>'
           + '<div class="fz-sim-chart" id="' + id + '-chart"></div>'
@@ -3760,7 +3755,10 @@
       const hinfEl = document.getElementById(id + '-hinf');
       if (!inp || !chart) return;
 
-      const harvest = Math.max(0, parseInt(inp.value) || 0);
+      const rawInp = inp.value.trim();
+      const harvestSeq = (rawInp === '' ? '0' : rawInp).split(',').map(s => Math.max(0, parseInt(s.trim()) || 0));
+      const firstHarvest = harvestSeq[0];
+
       const getZoneRow = z => (D.fishStocks || []).find(f => f.zone === z);
       const bonusZones = {};
       (D.activeEffects || []).filter(e => e.type === 'bonus_fish').forEach(e => { bonusZones[e.target_zone] = (bonusZones[e.target_zone] || 0) + 2; });
@@ -3768,13 +3766,17 @@
       const row = getZoneRow(zone);
       const stock = (row ? row.stock : (ZONE_FISH_DATA[zone]?.initial ?? 0)) + (bonusZones[zone] || 0);
       const cap = row ? row.capacity : (ZONE_FISH_DATA[zone]?.cap ?? 15);
-      const effectiveHarvest = isToxic ? 0 : harvest;
 
       // Project 8 turns
       const TURNS = 8;
       const series = [stock];
       let cur = stock;
-      for (let i = 0; i < TURNS; i++) { cur = projectFish(cur, cap, effectiveHarvest); series.push(cur); }
+      for (let i = 0; i < TURNS; i++) {
+        const rawH = harvestSeq[Math.min(i, harvestSeq.length - 1)];
+        const effectiveHarvest = isToxic ? 0 : rawH;
+        cur = projectFish(cur, cap, effectiveHarvest);
+        series.push(cur);
+      }
 
       // Find max for bar scaling
       const maxVal = Math.max(cap, ...series);
@@ -3792,7 +3794,7 @@
       }).join('');
 
       // Sustainability info
-      const growthAtStock = 0.4 * stock * (1 - stock / cap);
+      const growthAtStock = 1.0 * stock * (1 - stock / cap);
       const maxSustainable = Math.floor(growthAtStock + 0.001);
       if (hinfEl) hinfEl.textContent = '(max sustainable: ~' + maxSustainable + '/turn)';
 
@@ -3800,14 +3802,14 @@
       let warn = '';
       if (isToxic) {
         warn = 'Toxic spill active — fishing yields 0 this turn regardless.';
-      } else if (harvest > stock) {
-        warn = 'Harvest exceeds current stock. Zone will be depleted immediately.';
+      } else if (firstHarvest > stock) {
+        warn = 'Initial harvest exceeds current stock. Zone will be depleted immediately.';
       } else if (series[series.length - 1] < 1) {
-        warn = 'Zone collapses to 0 within ' + TURNS + ' turns at this harvest rate.';
+        warn = 'Zone collapses to 0 within ' + TURNS + ' turns with this sequence.';
       } else if (series[series.length - 1] < cap * 0.2) {
         warn = 'Population falls to critical levels within ' + TURNS + ' turns. Consider reducing fishing pressure.';
-      } else if (harvest > maxSustainable) {
-        warn = 'Harvest exceeds natural growth — population will slowly decline each turn.';
+      } else if (harvestSeq.every(h => h > maxSustainable)) {
+        warn = 'Harvest sequence consistently exceeds natural growth — population will decline.';
       }
       if (warnEl) warnEl.textContent = warn;
     }
@@ -3817,68 +3819,12 @@
       const el = document.getElementById('panel-fish-zones');
       if (!el) return;
       const isHidden = el.classList.contains('hidden');
-      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
-      if (isHidden) { el.classList.remove('hidden'); renderFishZones('p-fz'); }
-    }
-
-    // ─── GOLD TRANSFER ───────────────────────────────────────────────
-    function toggleGoldTransferPanel() {
-      const el = document.getElementById('panel-gold-transfer');
-      if (!el) return;
-      const isHidden = el.classList.contains('hidden');
-      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
-      if (!isHidden) return;
-      el.classList.remove('hidden');
-      const sel = document.getElementById('gt-to');
-      sel.innerHTML = '<option value="">— select —</option>'
-        + COUNTRIES.filter(c => c !== CU.country).map(c => '<option value="' + c + '">' + (FLAGS[c] || '') + ' ' + c + '</option>').join('');
-      document.getElementById('gt-avail').textContent = D.myEco?.gold ?? '—';
-      loadTransferLog();
-    }
-
-    async function loadTransferLog() {
-      try {
-        const rows = await sb('economy_log?country=eq.' + encodeURIComponent(CU.country) + '&type=eq.transfer&order=created_at.desc&limit=10&select=*');
-        const el = document.getElementById('gt-log');
-        if (!rows?.length) { if (el) el.textContent = 'No transfers yet.'; return; }
-        if (el) el.innerHTML = rows.map(r => '[T' + r.turn + '] ' + r.note).join('<br>');
-      } catch (e) { /* silent */ }
-    }
-
-    async function submitGoldTransfer() {
-      const to = document.getElementById('gt-to').value;
-      const amt = parseInt(document.getElementById('gt-amt').value);
-      const msg = document.getElementById('gt-msg-txt').value.trim();
-      const resEl = document.getElementById('gt-result');
-      if (!to) { showAl(resEl, 'Select a recipient country.', 'aw'); resEl.classList.remove('hidden'); return; }
-      if (!amt || amt < 1) { showAl(resEl, 'Enter a positive amount.', 'aw'); resEl.classList.remove('hidden'); return; }
-      const myGold = D.myEco?.gold || 0;
-      if (amt > myGold) { showAl(resEl, 'Not enough gold — you have ' + myGold + 'g.', 'ae'); resEl.classList.remove('hidden'); return; }
-      if (!confirm('Send ' + amt + 'g to ' + to + '?' + (msg ? '\n"' + msg + '"' : ''))) return;
-      showLoad('Transferring…');
-      try {
-        const [fromArr, toArr] = await Promise.all([
-          sb('economy?country=eq.' + encodeURIComponent(CU.country) + '&select=gold'),
-          sb('economy?country=eq.' + encodeURIComponent(to) + '&select=gold'),
-        ]);
-        const fromGold = fromArr?.[0]?.gold ?? myGold;
-        const toGold = toArr?.[0]?.gold ?? 0;
-        if (amt > fromGold) { hideLoad(); showAl(resEl, 'Insufficient gold.', 'ae'); resEl.classList.remove('hidden'); return; }
-        await sb('economy?country=eq.' + encodeURIComponent(CU.country), { method: 'PATCH', prefer: 'return=minimal', body: { gold: fromGold - amt } });
-        await sb('economy?country=eq.' + encodeURIComponent(to), { method: 'PATCH', prefer: 'return=minimal', body: { gold: toGold + amt } });
-        const nF = '-' + amt + 'g → ' + to + (msg ? ' ("' + msg + '")' : '');
-        const nT = '+' + amt + 'g ← ' + CU.country + (msg ? ' ("' + msg + '")' : '');
-        await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: CU.country, turn: D.cfg.turn, type: 'transfer', amount: -amt, note: nF } });
-        await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: to, turn: D.cfg.turn, type: 'transfer', amount: amt, note: nT } });
-        await notifyPlayer(to, '💰 <b>' + (FLAGS[CU.country] || '') + ' ' + CU.country + '</b> sent you <b>' + amt + 'g</b>' + (msg ? ': "' + msg + '"' : '') + '.');
-        await loadPlayerData(); hideLoad();
-        document.getElementById('gt-avail').textContent = D.myEco?.gold ?? '—';
-        document.getElementById('gt-amt').value = '';
-        document.getElementById('gt-msg-txt').value = '';
-        showAl(resEl, amt + 'g sent to ' + (FLAGS[to] || '') + ' ' + to + '.', 'as'); resEl.classList.remove('hidden');
-        setTimeout(() => resEl.classList.add('hidden'), 4000);
-        loadTransferLog();
-      } catch (e) { hideLoad(); showAl(resEl, 'Error: ' + e.message, 'ae'); resEl.classList.remove('hidden'); }
+      // Hide all season panels first
+      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
+      if (isHidden) {
+        el.classList.remove('hidden');
+        renderFishZones('p-fz');
+      }
     }
 
     /** GM sets fish stock for a zone directly in the DB */
@@ -3923,43 +3869,47 @@
     /** Renders the card shop in the Winter panel */
     function rCardShop() {
       const shopEl = document.getElementById('p-card-shop-list');
+      const msgEl = document.getElementById('p-card-shop-msg');
       if (!shopEl) return;
       if (!D.cardConfig?.enabled) {
         shopEl.innerHTML = '<div class="al ai" style="font-size:12px;">Spy cards are not yet available. The GM will enable them when the time comes.</div>';
         return;
       }
+      const allowed = D.cardConfig.allowed_types || [];
       const gold = D.myEco?.gold || 0;
       const canAfford = gold >= 6;
-      shopEl.innerHTML =
-        '<div class="spy-card" style="border-color:rgba(157,78,221,.4);background:rgba(157,78,221,.07);">'
-        + '<div style="display:flex;align-items:center;gap:14px;">'
-        + '<div style="font-size:36px;line-height:1;flex-shrink:0;">🎴</div>'
-        + '<div style="flex:1;">'
-        + '<div class="spy-card-name" style="font-size:15px;">Mystery Card</div>'
-        + '<div class="spy-card-desc" style="margin-top:4px;">Draw a random card — you won\'t know what it is until it\'s yours. Could be powerful, could be nothing.</div>'
-        + '</div>'
-        + '<div style="text-align:center;flex-shrink:0;">'
-        + '<div style="font-family:var(--fm);font-size:18px;color:var(--gold);font-weight:bold;margin-bottom:6px;">6g</div>'
-        + '<button class="btn btn-sm" style="background:rgba(157,78,221,.3);border:1px solid rgba(157,78,221,.6);color:#c77dff;white-space:nowrap;" onclick="buySpyCard()" ' + (canAfford ? '' : 'disabled') + '>Draw</button>'
-        + '</div></div>'
-        + (!canAfford ? '<div class="al aw" style="font-size:11px;margin-top:8px;margin-bottom:0;">You need 6g to draw a card.</div>' : '')
-        + '</div>';
+      let html = '';
+      Object.entries(SPY_CARDS).forEach(([key, card]) => {
+        const isLocked = allowed.length > 0 && !allowed.includes(key);
+        html += '<div class="spy-shop-row' + (isLocked ? ' locked-card' : (!canAfford ? ' cant' : '')) + '" onclick="' + (isLocked || !canAfford ? '' : 'buySpyCard(\\'' + key + '\\')') + '">'
+          + '<div class="scs-icon">' + card.icon + '</div>'
+          + '<div class="scs-info"><div class="scs-name">' + card.name + (isLocked ? ' <span class="spy-badge locked">LOCKED</span>' : '') + '</div>'
+          + '<div class="scs-desc">' + card.desc + '</div></div>'
+          + '<div class="scs-cost">' + (isLocked ? '—' : '6g') + '</div>'
+          + '</div>';
+      });
+      if (!canAfford) {
+        shopEl.innerHTML = html + '<div class="al aw" style="font-size:11px;margin-top:6px;">You need 6g to purchase a card.</div>';
+      } else {
+        shopEl.innerHTML = html;
+      }
     }
 
-    async function buySpyCard() {
+    /** Player buys a spy card — deducts 6g and creates the card record */
+    async function buySpyCard(cardKey) {
       const gold = D.myEco?.gold || 0;
       if (gold < 6) { showAl(document.getElementById('p-card-shop-msg'), 'Not enough gold (need 6g).', 'ae'); document.getElementById('p-card-shop-msg').classList.remove('hidden'); return; }
-      if (!confirm('Draw a random spy card for 6g?')) return;
-      showLoad('Drawing…');
+      if (!confirm('Purchase ' + SPY_CARDS[cardKey]?.name + ' for 6g?')) return;
+      showLoad('Purchasing…');
       try {
-        const cardKey = randomCardKey();
-        const def = SPY_CARDS[cardKey] || SPY_CARDS['nothing'];
+        // Deduct gold
         await sb('economy?country=eq.' + encodeURIComponent(CU.country), { method: 'PATCH', prefer: 'return=minimal', body: { gold: gold - 6 } });
         await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: CU.country, turn: D.cfg.turn, type: 'card', amount: -6, note: '-6g: spy card (' + cardKey + ')' } });
+        // Create card record
         const cardId = CU.country.slice(0, 3).toUpperCase() + '-SC-' + Date.now().toString(36).toUpperCase().slice(-5);
         await sb('spy_cards', { method: 'POST', prefer: 'return=minimal', body: { id: cardId, country: CU.country, card_type: cardKey, status: 'held', turn_purchased: D.cfg.turn } });
         await loadPlayerData(); hideLoad();
-        showAl(document.getElementById('p-card-shop-msg'), def.icon + ' You drew: <b>' + def.name + '</b>! ' + def.desc, 'as');
+        showAl(document.getElementById('p-card-shop-msg'), SPY_CARDS[cardKey].icon + ' ' + SPY_CARDS[cardKey].name + ' purchased! Use it in Summer.', 'as');
         document.getElementById('p-card-shop-msg').classList.remove('hidden');
         rCardShop();
       } catch (e) { hideLoad(); alert('Purchase error: ' + e.message); }
@@ -3983,7 +3933,7 @@
             + '<div><div style="font-size:22px;line-height:1;margin-bottom:4px;">' + def.icon + '</div>'
             + '<div class="spy-card-name">' + def.name + '</div>'
             + '<div class="spy-card-desc">' + def.desc + '</div></div>'
-            + '<button class="btn btn-sm" style="background:rgba(157,78,221,.25);border:1px solid rgba(157,78,221,.5);color:#c77dff;white-space:nowrap;" onclick="openPlayCard(\'' + card.id + '\',\'' + card.card_type + '\')">Play Card</button>'
+            + '<button class="btn btn-sm" style="background:rgba(157,78,221,.25);border:1px solid rgba(157,78,221,.5);color:#c77dff;white-space:nowrap;" onclick="openPlayCard(\\'' + card.id + '\\',\\'' + card.card_type + '\\')">Play Card</button>'
             + '</div></div>';
         });
       }
@@ -4255,7 +4205,7 @@
             + '<div style="flex:1;"><div style="font-family:var(--fh);font-size:13px;font-weight:600;color:#c77dff;">' + card.name + '</div>'
             + '<div style="font-family:var(--fm);font-size:10px;color:var(--text2);">' + card.desc + '</div></div>'
             + '<span class="spy-badge ' + (on ? '' : 'locked') + '">' + (on ? 'ALLOWED' : 'LOCKED') + '</span>'
-            + '<button class="btn btn-o btn-sm" onclick="gmToggleCardType(\'' + key + '\')">' + (on ? 'Lock' : 'Unlock') + '</button>'
+            + '<button class="btn btn-o btn-sm" onclick="gmToggleCardType(\\'' + key + '\\')">' + (on ? 'Lock' : 'Unlock') + '</button>'
             + '</div>';
         }).join('');
       }
@@ -4280,8 +4230,8 @@
           + '</div>'
           + '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">'
           + '<span class="' + statusColor + '">' + card.status.toUpperCase() + '</span>'
-          + (card.status === 'played' ? '<button class="btn btn-sm" style="background:rgba(46,196,182,.15);border:1px solid rgba(46,196,182,.3);color:var(--green);" onclick="gmResolveCard(\'' + card.id + '\',\'' + card.card_type + '\',\'' + (card.country) + '\')">Resolve</button>' : '')
-          + (card.status !== 'used' ? '<button class="btn btn-d btn-sm" onclick="gmDeleteCard(\'' + card.id + '\')">✕</button>' : '')
+          + (card.status === 'played' ? '<button class="btn btn-sm" style="background:rgba(46,196,182,.15);border:1px solid rgba(46,196,182,.3);color:var(--green);" onclick="gmResolveCard(\\'' + card.id + '\\',\\'' + card.card_type + '\\',\\'' + (card.country) + '\\')">Resolve</button>' : '')
+          + (card.status !== 'used' ? '<button class="btn btn-d btn-sm" onclick="gmDeleteCard(\\'' + card.id + '\\')">✕</button>' : '')
           + '</div></div></div>';
       }).join('');
     }
@@ -4347,7 +4297,7 @@
 
       // These card types are now auto-applied by the game engine when played
       if (['steal_gold', 'toxic_spill', 'bonus_fish', 'sanction', 'sabotage_base', 'sink_ship', 'destroy_base', 'disable_unit'].includes(cardType)) {
-        if (!confirm('This card\'s effect was applied automatically when played. Mark it as used in the log?')) return;
+        if (!confirm('This card\\'s effect was applied automatically when played. Mark it as used in the log?')) return;
         showLoad('…');
         try {
           await sb('spy_cards?id=eq.' + cardId, { method: 'PATCH', prefer: 'return=minimal', body: { status: 'used' } });
@@ -4370,7 +4320,7 @@
         'naval_superiority': 'Naval Superiority for ' + ownerCountry + ': apply +1 attack bonus to all their ships in the next combat this turn.',
       }[cardType] || 'Resolve this card effect and mark it used?';
 
-      if (!confirm(actionDesc + '\n\nMark card as USED?')) return;
+      if (!confirm(actionDesc + '\\n\\nMark card as USED?')) return;
       showLoad('…');
       try {
         await sb('spy_cards?id=eq.' + cardId, { method: 'PATCH', prefer: 'return=minimal', body: { status: 'used' } });
@@ -4513,6 +4463,828 @@
       } catch (e) { /* non-fatal */ }
     }
 
+    // ─── UTILS ──────────────────────────────────────────────────────
+    function getConflicts() {
+      const bt = {}; D.allTroops.forEach(s => { if (!s.tile) return; if (!bt[s.tile]) bt[s.tile] = []; bt[s.tile].push(s); });
+      return Object.entries(bt).map(([tile, ships]) => { const cs = [...new Set(ships.map(s => s.country))]; return cs.length > 1 ? { tile, countries: cs, ships } : null; }).filter(Boolean);
+    }
+
+  <\/script>
+</body>
+
+</html>`;
+
+    const boardCode = `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>SCS Sim — Live Board</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap');
+  </style>
+  <style>
+    :root {
+      --bg: #040c18;
+      --teal: #00b4d8;
+      --gold: #f4a261;
+      --green: #2ec4b6;
+      --red: #e63946;
+      --text: #daeeff;
+      --text2: #4a7fa5;
+      --bdr: rgba(0, 180, 216, .15);
+      --fh: 'Rajdhani', sans-serif;
+      --fm: 'Share Tech Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--fh);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 50px;
+      background: rgba(4, 12, 24, .98);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--bdr);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .top-bar h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--teal);
+      text-transform: uppercase
+    }
+
+    .top-meta {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-family: var(--fm);
+      font-size: 11px;
+      color: var(--text2)
+    }
+
+    .top-meta b {
+      color: var(--gold)
+    }
+
+    .sp {
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      background: rgba(0, 180, 216, .1);
+      border: 1px solid rgba(0, 180, 216, .25);
+      color: var(--teal)
+    }
+
+    .sp.fall {
+      background: rgba(244, 162, 97, .1);
+      border-color: rgba(244, 162, 97, .25);
+      color: var(--gold)
+    }
+
+    .sp.winter {
+      background: rgba(142, 202, 230, .1);
+      border-color: rgba(142, 202, 230, .22);
+      color: #8ecae6
+    }
+
+    .sp.spring {
+      background: rgba(46, 196, 182, .1);
+      border-color: rgba(46, 196, 182, .22);
+      color: var(--green)
+    }
+
+    .sp.summer {
+      background: rgba(230, 57, 70, .1);
+      border-color: rgba(230, 57, 70, .22);
+      color: var(--red)
+    }
+
+    .sp.setup {
+      background: rgba(142, 202, 230, .08);
+      border-color: rgba(142, 202, 230, .18);
+      color: #8ecae6
+    }
+
+    .rfbtn {
+      padding: 3px 12px;
+      background: rgba(0, 180, 216, .07);
+      border: 1px solid var(--bdr);
+      border-radius: 4px;
+      color: var(--text2);
+      font-family: var(--fm);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .rfbtn:hover {
+      border-color: var(--teal);
+      color: var(--teal)
+    }
+
+    .board-area {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 270px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .map-panel {
+      position: relative;
+      overflow: auto;
+      background: #040c18;
+    }
+
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      min-width: 800px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .map-wrapper img {
+      width: 100%;
+      display: block;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .mk {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      pointer-events: all;
+      cursor: default;
+    }
+
+    .mk-inner {
+      background: rgba(4, 12, 24, .82);
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 6px;
+      padding: 3px 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      min-width: 28px;
+    }
+
+    .mk:hover .mk-inner {
+      border-color: var(--teal);
+    }
+
+    .mk-flag {
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .mk-icon {
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .mk-id {
+      font-family: var(--fm);
+      font-size: 8px;
+      color: rgba(255, 255, 255, .45);
+      line-height: 1;
+    }
+
+    .mk-label {
+      font-family: var(--fm);
+      font-size: 8px;
+      color: var(--gold);
+      line-height: 1;
+      white-space: nowrap;
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mk-base {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+    }
+
+    .mk-build {
+      opacity: .65;
+      border-style: dashed !important;
+    }
+
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(4, 12, 24, .97);
+      border: 1px solid rgba(0, 180, 216, .3);
+      border-radius: 6px;
+      padding: 7px 10px;
+      white-space: nowrap;
+      font-family: var(--fm);
+      font-size: 11px;
+      color: var(--text);
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .mk:hover .tooltip {
+      display: block;
+    }
+
+    .sidebar-panel {
+      border-left: 1px solid var(--bdr);
+      background: rgba(4, 12, 24, .85);
+      overflow-y: auto;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cc {
+      border: 1px solid var(--bdr);
+      border-radius: 8px;
+      padding: 10px 11px;
+    }
+
+    .cc h3 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .8px;
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .cc-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .cs {
+      text-align: center;
+      background: rgba(0, 180, 216, .05);
+      border-radius: 4px;
+      padding: 5px 3px;
+    }
+
+    .csv {
+      font-family: var(--fm);
+      font-size: 15px;
+      color: var(--teal);
+    }
+
+    .csl {
+      font-size: 8px;
+      color: var(--text2);
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .c-ships {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+    }
+
+    .spip {
+      background: rgba(255, 255, 255, .05);
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-family: var(--fm);
+      font-size: 9px;
+      color: var(--text2);
+    }
+
+    .legend {
+      border: 1px solid var(--bdr);
+      border-radius: 8px;
+      padding: 10px 11px;
+    }
+
+    .legend h3 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 7px;
+      color: var(--text2);
+      text-transform: uppercase;
+    }
+
+    .li-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--fm);
+      font-size: 10px;
+      color: var(--text2);
+      margin-bottom: 3px;
+    }
+
+    .li-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .conf-panel {
+      background: rgba(230, 57, 70, .1);
+      border: 1px solid rgba(230, 57, 70, .3);
+      border-radius: 7px;
+      padding: 10px 11px;
+    }
+
+    .conf-panel h3 {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--red);
+      margin-bottom: 5px;
+    }
+
+    .conf-item {
+      font-family: var(--fm);
+      font-size: 10px;
+      color: var(--red);
+      padding: 2px 0;
+    }
+
+    #last-updated {
+      font-family: var(--fm);
+      font-size: 9px;
+      color: var(--text2);
+      text-align: center;
+      padding: 5px;
+      border-top: 1px solid var(--bdr);
+    }
+
+    .fish-panel {
+      border: 1px solid rgba(46, 196, 182, .2);
+      border-radius: 8px;
+      background: rgba(46, 196, 182, .04);
+      overflow: hidden;
+    }
+
+    .fish-panel-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-bottom: 1px solid rgba(46, 196, 182, .15);
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .fish-panel-hdr h3 {
+      font-family: var(--fh);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+      letter-spacing: .5px;
+    }
+
+    .fish-panel-hdr-icon {
+      font-family: var(--fm);
+      font-size: 9px;
+      color: var(--text2);
+    }
+
+    .fish-panel-body {
+      padding: 10px 10px 4px;
+      max-height: 340px;
+      overflow-y: auto;
+    }
+
+    .fish-panel-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .fish-panel-body::-webkit-scrollbar-thumb {
+      background: rgba(46, 196, 182, .3);
+      border-radius: 2px;
+    }
+
+    .spin {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0, 180, 216, .2);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .w100 {
+      width: 100%;
+    }
+
+    .fs10 {
+      font-size: 10px;
+    }
+
+    .fs9 {
+      font-size: 9px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-bar">
+    <h1>SCS Live Board</h1>
+    <div class="top-meta">
+      <div>Turn <b id="b-turn">—</b></div>
+      <div id="b-sp" class="sp setup">◈ Setup</div>
+      <button class="rfbtn" onclick="loadBoard()">↻ Refresh</button>
+      <div id="b-st" class="fs10"></div>
+    </div>
+  </div>
+  <div class="board-area">
+    <div class="map-panel" id="map-panel">
+      <div class="map-wrapper" id="map-wrapper">
+        <img id="bmap" src="" alt="SCS Game Board">
+        <div class="overlay" id="overlay"></div>
+      </div>
+    </div>
+    <div class="sidebar-panel">
+      <div id="conf-panel" class="conf-panel hidden">
+        <h3>⚠ Combat Alerts</h3>
+        <div id="conf-list"></div>
+      </div>
+      <div id="country-cards"></div>
+      <div class="fish-panel">
+        <div class="fish-panel-hdr" onclick="this.nextElementSibling.classList.toggle('hidden')">
+          <h3>Fish Zones</h3>
+          <span class="fish-panel-hdr-icon">▾</span>
+        </div>
+        <div class="fish-panel-body" id="fish-panel-body"></div>
+      </div>
+      <div class="legend">
+        <h3>Zone Legend</h3>
+        <div id="legend-items"></div>
+      </div>
+      <div id="last-updated">—</div>
+    </div>
+  </div>
+  <script>
+    // Supabase URL and Anonymous Key for public data fetching
+    const SB_URL = 'https://fbvybpxosrjvtrwkdrmr.supabase.co';
+    const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZidnlicHhvc3JqdnRyd2tkcm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5OTk1NjEsImV4cCI6MjA5MTU3NTU2MX0.tH6NYFlpZmH3tE_oh5V9gKe62hC_VCo3cIF2Dym-ydE';
+
+    // Core game configuration and dictionaries
+    const MAP_SRC = 'Game Board Map.png';
+    // Map of country names to flag emojis
+    const FLAGS = { China: '🇨🇳', Taiwan: '🇹🇼', Philippines: '🇵🇭', Malaysia: '🇲🇾', Indonesia: '🇮🇩', Thailand: '🇹🇭', Cambodia: '🇰🇭', Vietnam: '🇻🇳' };
+    // List of active countries in the game
+    const COUNTRIES = ['China', 'Taiwan', 'Philippines', 'Malaysia', 'Indonesia', 'Thailand', 'Cambodia', 'Vietnam'];
+    // Color mapping for map zones
+    const ZONE_COLORS = { "China": "#c1121f", "Vietnam": "#d4a017", "Taiwan": "#3a86ff", "Philippines": "#8338ec", "Malaysia": "#fb5607", "Indonesia": "#06d6a0", "Cambodia": "#bc6c25", "Thailand": "#e9c46a", "Blue Neutral Zone": "#4cc9f0", "Purple Neutral Zone": "#9d4edd", "Orange Neutral Zone": "#f77f00", "Green Neutral Zone": "#2d9e5f" };
+    // Tile data containing zone (z) and adjacent tiles (a)
+    const TILE_DATA = { "1": { "z": "Vietnam", "a": ["2", "5", "6", "7"] }, "2": { "z": "China", "a": ["1", "3", "6", "7", "8"] }, "3": { "z": "China", "a": ["2", "7", "8", "9"] }, "4": { "z": "Thailand", "a": ["5", "12", "13"] }, "5": { "z": "Vietnam", "a": ["1", "4", "6", "13", "14"] }, "6": { "z": "China", "a": ["1", "2", "5", "7", "14", "15"] }, "7": { "z": "China", "a": ["1", "2", "3", "6", "8", "15", "16", "17"] }, "8": { "z": "China", "a": ["2", "3", "7", "9", "17", "18"] }, "9": { "z": "China", "a": ["3", "8", "10", "17", "18"] }, "10": { "z": "China", "a": ["9", "11", "18", "19"] }, "11": { "z": "China", "a": ["10", "19", "20"] }, "12": { "z": "Thailand", "a": ["4", "13", "21", "22"] }, "13": { "z": "Thailand", "a": ["4", "5", "12", "22", "23"] }, "14": { "z": "Vietnam", "a": ["5", "6", "13", "15", "23", "24", "25"] }, "15": { "z": "Blue Neutral Zone", "a": ["6", "7", "14", "16", "24", "25"] }, "16": { "z": "Blue Neutral Zone", "a": ["7", "15", "17", "25", "26", "27"] }, "17": { "z": "Blue Neutral Zone", "a": ["7", "8", "9", "16", "18", "26", "27", "28"] }, "18": { "z": "Purple Neutral Zone", "a": ["8", "9", "10", "17", "19", "28", "29"] }, "19": { "z": "Taiwan", "a": ["10", "11", "18", "20", "29", "30"] }, "20": { "z": "Taiwan", "a": ["11", "19", "30"] }, "21": { "z": "Thailand", "a": ["12", "22", "31", "32"] }, "22": { "z": "Green Neutral Zone", "a": ["12", "13", "21", "23", "32", "33"] }, "23": { "z": "Cambodia", "a": ["13", "14", "22", "24", "33", "34", "35"] }, "24": { "z": "Vietnam", "a": ["14", "15", "23", "25", "34", "35", "36"] }, "25": { "z": "Blue Neutral Zone", "a": ["14", "15", "16", "24", "26", "35", "36", "37"] }, "26": { "z": "Blue Neutral Zone", "a": ["16", "17", "25", "27", "36", "37", "38"] }, "27": { "z": "Blue Neutral Zone", "a": ["16", "17", "26", "28", "37", "38", "39"] }, "28": { "z": "Purple Neutral Zone", "a": ["17", "18", "27", "29", "38", "39", "40"] }, "29": { "z": "Purple Neutral Zone", "a": ["18", "19", "28", "30", "39", "40", "41"] }, "30": { "z": "Taiwan", "a": ["19", "20", "29", "40", "41"] }, "31": { "z": "Thailand", "a": ["21", "32", "42"] }, "32": { "z": "Green Neutral Zone", "a": ["21", "22", "31", "33", "42", "43"] }, "33": { "z": "Cambodia", "a": ["22", "23", "32", "34", "43", "44"] }, "34": { "z": "Cambodia", "a": ["23", "24", "33", "35", "44", "45"] }, "35": { "z": "Vietnam", "a": ["23", "24", "25", "34", "36", "45", "46"] }, "36": { "z": "Blue Neutral Zone", "a": ["24", "25", "26", "35", "37", "45", "46", "47"] }, "37": { "z": "Blue Neutral Zone", "a": ["25", "26", "27", "36", "38", "46", "47", "48"] }, "38": { "z": "Blue Neutral Zone", "a": ["26", "27", "28", "37", "39", "47", "48", "49"] }, "39": { "z": "Purple Neutral Zone", "a": ["27", "28", "29", "38", "40", "48", "49", "50"] }, "40": { "z": "Purple Neutral Zone", "a": ["28", "29", "30", "39", "41", "49", "50", "51"] }, "41": { "z": "Philippines", "a": ["29", "30", "40", "50", "51"] }, "42": { "z": "Thailand", "a": ["31", "32", "43", "52", "53"] }, "43": { "z": "Green Neutral Zone", "a": ["32", "33", "42", "44", "53", "54"] }, "44": { "z": "Green Neutral Zone", "a": ["33", "34", "43", "45", "54", "55"] }, "45": { "z": "Green Neutral Zone", "a": ["34", "35", "36", "44", "46", "54", "55", "56"] }, "46": { "z": "Orange Neutral Zone", "a": ["35", "36", "37", "45", "47", "55", "56", "57"] }, "47": { "z": "Blue Neutral Zone", "a": ["36", "37", "38", "46", "48", "56", "57", "58"] }, "48": { "z": "Purple Neutral Zone", "a": ["37", "38", "39", "47", "49", "57", "58", "59"] }, "49": { "z": "Purple Neutral Zone", "a": ["38", "39", "40", "48", "50", "58", "59", "60"] }, "50": { "z": "Purple Neutral Zone", "a": ["39", "40", "41", "49", "51", "59", "60"] }, "51": { "z": "Philippines", "a": ["40", "41", "50", "60"] }, "52": { "z": "Indonesia", "a": ["42", "53", "61", "62"] }, "53": { "z": "Green Neutral Zone", "a": ["42", "43", "52", "54", "62", "63"] }, "54": { "z": "Green Neutral Zone", "a": ["43", "44", "45", "53", "55", "63", "64"] }, "55": { "z": "Orange Neutral Zone", "a": ["44", "45", "46", "54", "56", "63", "64", "65"] }, "56": { "z": "Orange Neutral Zone", "a": ["45", "46", "47", "55", "57", "64", "65", "66"] }, "57": { "z": "Purple Neutral Zone", "a": ["46", "47", "48", "56", "58", "65", "66", "67"] }, "58": { "z": "Purple Neutral Zone", "a": ["47", "48", "49", "57", "59", "66", "67", "68"] }, "59": { "z": "Purple Neutral Zone", "a": ["48", "49", "50", "58", "60", "67", "68", "69"] }, "60": { "z": "Philippines", "a": ["49", "50", "51", "59", "68", "69"] }, "61": { "z": "Indonesia", "a": ["52", "62", "70"] }, "62": { "z": "Green Neutral Zone", "a": ["52", "53", "61", "63", "70", "71"] }, "63": { "z": "Green Neutral Zone", "a": ["53", "54", "55", "62", "64", "71", "72"] }, "64": { "z": "Orange Neutral Zone", "a": ["54", "55", "56", "63", "65", "71", "72", "73"] }, "65": { "z": "Orange Neutral Zone", "a": ["55", "56", "57", "64", "66", "72", "73", "74"] }, "66": { "z": "Orange Neutral Zone", "a": ["56", "57", "58", "65", "67", "73", "74", "75"] }, "67": { "z": "Purple Neutral Zone", "a": ["57", "58", "59", "66", "68", "74", "75"] }, "68": { "z": "Philippines", "a": ["58", "59", "60", "67", "69", "75"] }, "69": { "z": "Philippines", "a": ["59", "60", "68"] }, "70": { "z": "Indonesia", "a": ["61", "62", "71"] }, "71": { "z": "Indonesia", "a": ["62", "63", "64", "70", "72"] }, "72": { "z": "Orange Neutral Zone", "a": ["63", "64", "65", "66", "71", "73", "76", "77"] }, "73": { "z": "Orange Neutral Zone", "a": ["64", "65", "66", "67", "72", "74", "77", "78"] }, "74": { "z": "Orange Neutral Zone", "a": ["65", "66", "67", "68", "73", "75", "78", "79"] }, "75": { "z": "Orange Neutral Zone", "a": ["66", "67", "68", "74", "79"] }, "76": { "z": "Malaysia", "a": ["72", "77"] }, "77": { "z": "Malaysia", "a": ["72", "73", "76", "78"] }, "78": { "z": "Malaysia", "a": ["73", "74", "77", "79"] }, "79": { "z": "Malaysia", "a": ["74", "75", "78"] } };
+    // Percentage coordinates for map tiles
+    const TILE_PCT = { "1": [32, 24], "2": [41, 19], "3": [49, 15], "4": [7, 45], "5": [32, 33], "6": [40, 28], "7": [49, 24], "8": [57, 19], "9": [66, 16], "10": [74, 11], "11": [83, 5], "12": [7, 54], "13": [15, 50], "14": [41, 37], "15": [49, 32], "16": [58, 28], "17": [66, 24], "18": [74, 19], "19": [83, 15], "20": [91, 11], "21": [6, 63], "22": [15, 58], "23": [24, 54], "24": [41, 45], "25": [49, 41], "26": [58, 37], "27": [66, 32], "28": [75, 28], "29": [83, 24], "30": [91, 20], "31": [7, 72], "32": [15, 67], "33": [24, 63], "34": [33, 58], "35": [41, 54], "36": [49, 50], "37": [58, 45], "38": [66, 41], "39": [75, 37], "40": [83, 32], "41": [92, 28], "42": [15, 76], "43": [24, 71], "44": [32, 67], "45": [41, 63], "46": [49, 58], "47": [58, 54], "48": [66, 49], "49": [75, 45], "50": [83, 41], "51": [91, 37], "52": [24, 80], "53": [32, 76], "54": [41, 71], "55": [49, 67], "56": [57, 62], "57": [66, 58], "58": [75, 54], "59": [83, 49], "60": [92, 45], "61": [23, 89], "62": [32, 84], "63": [41, 80], "64": [49, 76], "65": [58, 71], "66": [66, 67], "67": [74, 62], "68": [83, 58], "69": [92, 54], "70": [33, 93], "71": [41, 88], "72": [49, 84], "73": [58, 80], "74": [66, 76], "75": [75, 71], "76": [49, 93], "77": [58, 89], "78": [66, 85], "79": [74, 80] };
+    /**
+     * Helper: Gets the country/zone name for a given tile ID
+     * @param {string|number} id - Tile ID
+     */
+    function tz(id) { return TILE_DATA[String(id)]?.z || ''; }
+    function se(t) { return { 'Fishing Boat': '🎣', 'Coast Guard': '⚓', 'FAC': '⚡', 'Destroyer': '🚢' }[t] || '🚢'; }
+
+    const ALL_ZONES = ['China', 'Taiwan', 'Philippines', 'Malaysia', 'Indonesia', 'Thailand', 'Cambodia', 'Vietnam', 'Green Neutral Zone', 'Blue Neutral Zone', 'Purple Neutral Zone', 'Orange Neutral Zone'];
+
+    // Rulebook values — used as fallback when DB has no row yet
+    const ZONE_FISH_DATA = {
+      'China': { cap: 7, initial: 3 },
+      'Taiwan': { cap: 4, initial: 2 },
+      'Philippines': { cap: 6, initial: 2 },
+      'Malaysia': { cap: 5, initial: 2 },
+      'Indonesia': { cap: 5, initial: 3 },
+      'Thailand': { cap: 6, initial: 3 },
+      'Cambodia': { cap: 4, initial: 2 },
+      'Vietnam': { cap: 6, initial: 2 },
+      'Green Neutral Zone': { cap: 15, initial: 6 },
+      'Orange Neutral Zone': { cap: 15, initial: 6 },
+      'Blue Neutral Zone': { cap: 15, initial: 6 },
+      'Purple Neutral Zone': { cap: 15, initial: 6 },
+    };
+
+    // One representative tile per zone used for placing the fish stock overlay marker
+    const ZONE_LABEL_TILE = {
+      'China': '7', 'Vietnam': '14', 'Taiwan': '19', 'Philippines': '51',
+      'Malaysia': '77', 'Indonesia': '71', 'Thailand': '12', 'Cambodia': '33',
+      'Green Neutral Zone': '44', 'Blue Neutral Zone': '36',
+      'Purple Neutral Zone': '49', 'Orange Neutral Zone': '65',
+    };
+
+    function projectFish(current, cap, harvest) {
+      const r = 0.4;
+      return Math.max(0, Math.round((current + r * current * (1 - current / cap) - harvest) * 10) / 10);
+    }
+
+    function fishHealth(current, cap) {
+      const ratio = current / cap;
+      if (ratio >= 0.7) return { label: 'Healthy', color: '#2ec4b6' };
+      if (ratio >= 0.4) return { label: 'Moderate', color: '#e9c46a' };
+      if (ratio >= 0.2) return { label: 'Low', color: '#f4a261' };
+      return { label: 'Critical', color: '#e63946' };
+    }
+
+    let bData = { troops: [], bases: [], fleets: [], fishZones: [], config: { turn: 1, season: 'setup' } };
+
+    async function sbGet(path) {
+      const _target = SB_URL + '/rest/v1/' + path;
+      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(_target), {
+        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'X-Client-Info': 'scs-sim/1.0' },
+      });
+      const t = await r.text(); return t ? JSON.parse(t) : [];
+    }
+
+    async function loadBoard() {
+      document.getElementById('b-st').innerHTML = '<span class="spin"></span>';
+      try {
+        const [cfg, tr, bs, fl, fz] = await Promise.all([
+          sbGet('game_config?select=turn,season'),
+          sbGet('troops?select=id,country,type,tile,hp,max_hp,disabled'),
+          sbGet('bases?select=id,country,tile,status,anchor_ship'),
+          sbGet('fleets?select=id,country,name,ship_ids'),
+          sbGet('fish_zones?select=*'),
+        ]);
+        bData = { config: cfg?.[0] || { turn: 1, season: 'setup' }, troops: tr || [], bases: bs || [], fleets: fl || [], fishZones: fz || [] };
+        renderBoard();
+        document.getElementById('b-st').textContent = '';
+        document.getElementById('last-updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+      } catch (e) { document.getElementById('b-st').textContent = '⚠ ' + e.message; }
+    }
+
+    function renderBoard() {
+      const { config, troops, bases, fleets, fishZones } = bData;
+      document.getElementById('b-turn').textContent = config.turn;
+      const sL = { setup: '◈ Setup', fall: '◆ Fall', winter: '❄ Winter', spring: '◉ Spring', summer: '⚔ Summer' };
+      const sp = document.getElementById('b-sp');
+      sp.textContent = sL[config.season] || config.season; sp.className = 'sp ' + config.season;
+
+      const byTile = {};
+      troops.forEach(s => { if (!s.tile) return; if (!byTile[s.tile]) byTile[s.tile] = []; byTile[s.tile].push(s); });
+      const conflicts = Object.entries(byTile).map(([tile, ships]) => {
+        const cs = [...new Set(ships.map(s => s.country))]; return cs.length > 1 ? { tile, countries: cs, ships } : null;
+      }).filter(Boolean);
+
+      const cp = document.getElementById('conf-panel'), cl = document.getElementById('conf-list');
+      if (conflicts.length) {
+        cp.classList.remove('hidden');
+        cl.innerHTML = conflicts.map(x => '<div class="conf-item">Tile ' + x.tile + ' (' + tz(x.tile) + '): ' + x.countries.join(' vs ') + '</div>').join('');
+      } else cp.classList.add('hidden');
+
+      const overlay = document.getElementById('overlay'); overlay.innerHTML = '';
+
+      function mk(tileId) {
+        const pct = TILE_PCT[tileId]; if (!pct) return null;
+        const el = document.createElement('div'); el.className = 'mk';
+        el.style.left = pct[0] + '%'; el.style.top = pct[1] + '%';
+        return el;
+      }
+
+      // ── Fish stock overlay markers (one per zone) ──
+      const fishByZone = {};
+      fishZones.forEach(f => { fishByZone[f.zone] = f; });
+      const boatsByZone = {};
+      troops.filter(s => s.type === 'Fishing Boat').forEach(s => {
+        const z = tz(s.tile); if (!z) return;
+        boatsByZone[z] = (boatsByZone[z] || 0) + 1;
+      });
+
+      ALL_ZONES.forEach(z => {
+        const labelTile = ZONE_LABEL_TILE[z]; if (!labelTile) return;
+        // Don't render fish marker if ships occupy this tile (avoid overlap)
+        if (byTile[labelTile]) return;
+        const row = fishByZone[z];
+        const stock = row ? row.stock : (ZONE_FISH_DATA[z]?.initial ?? 0);
+        const cap = row ? row.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
+        const boats = boatsByZone[z] || 0;
+        const h = fishHealth(stock, cap);
+        const nextStock = projectFish(stock, cap, boats);
+        const delta = nextStock - stock;
+        const arrow = delta > 0.05 ? '↑' : delta < -0.05 ? '↓' : '→';
+        const zc = ZONE_COLORS[z] || '#555';
+        const m = mk(labelTile); if (!m) return;
+        m.style.zIndex = '1'; // Below ship markers
+        m.innerHTML = '<div style="'
+          + 'background:rgba(4,12,24,.82);border:1px solid ' + h.color + '55;border-radius:7px;'
+          + 'padding:3px 5px;text-align:center;min-width:36px;cursor:default;'
+          + '">'
+          + '<div style="font-family:var(--fm);font-size:11px;font-weight:700;color:' + h.color + ';line-height:1.1;">'
+          + '🐟' + stock
+          + '</div>'
+          + '<div style="font-family:var(--fm);font-size:8px;color:' + h.color + '88;line-height:1.1;">'
+          + arrow + nextStock + '/' + cap
+          + '</div>'
+          + (boats > 0 ? '<div style="font-size:8px;color:var(--gold);line-height:1;">🎣' + boats + '</div>' : '')
+          + '</div>'
+          + '<div class="tooltip">'
+          + '<b>' + z + '</b><br>'
+          + 'Stock: ' + stock + ' / ' + cap + ' (' + h.label + ')<br>'
+          + 'Fishing boats: ' + boats + '<br>'
+          + 'Next turn projection: ' + nextStock + ' ' + arrow
+          + '</div>';
+        overlay.appendChild(m);
+      });
+
+      // Render all tiles containing ships/units
+      Object.entries(byTile).forEach(([tile, ships]) => {
+        const m = mk(tile); if (!m) return;
+        const bBase = bases.find(b => String(b.tile) === String(tile));
+        const countries = [...new Set(ships.map(s => s.country))];
+        const inConf = conflicts.some(c => c.tile === tile);
+        const fl = fleets.find(f => ships.length > 0 && ships.every(s => f.ship_ids && f.ship_ids.includes(s.id)));
+        const typeCounts = {}; ships.forEach(s => { typeCounts[s.type] = (typeCounts[s.type] || 0) + 1; });
+        const zc = countries.length === 1 ? (ZONE_COLORS[countries[0]] || 'rgba(255,255,255,.2)') : 'rgba(255,255,255,.2)';
+        const bStyle = inConf ? 'border-color:rgba(230,57,70,.85);background:rgba(230,57,70,.18);' : 'border-color:' + zc + ';';
+        const flagsHtml = countries.slice(0, 3).map(c => '<span class="mk-flag">' + (FLAGS[c] || '') + '</span>').join('')
+          + (countries.length > 3 ? '<span class="fs9 mu">+' + (countries.length - 3) + '</span>' : '');
+        const iconsHtml = Object.entries(typeCounts).map(([t, n]) => '<span class="mk-icon">' + se(t) + (n > 1 ? 'x' + n : '') + '</span>').join('');
+        const baseHtml = bBase ? '<div class="mk-base ' + (bBase.status === 'construction' ? 'mk-build' : '') + '" style="background:rgba(255,255,255,0.25);">⚓</div>' : '';
+        const flHtml = fl ? '<div class="mk-label">⚓' + fl.name + '</div>' : '';
+        const tipLines = ships.map(s => {
+          const sf = fleets.find(f => f.ship_ids && f.ship_ids.includes(s.id));
+          return (sf ? '[⚓' + sf.name + '] ' : '') + (FLAGS[s.country] || '') + ' ' + s.id + ' ' + se(s.type) + ' HP:' + s.hp;
+        }).join('<br>');
+        const baseTip = bBase ? (FLAGS[bBase.country] || '') + ' ' + bBase.country + ' base' + (bBase.status === 'construction' ? ' (building)' : '') + '<br>' : '';
+        m.innerHTML = '<div class="mk-inner" style="' + bStyle + '">'
+          + '<div class="fb gap1">' + flagsHtml + '</div>'
+          + '<div class="fb gap2 fw-w jc-c ai-c">' + baseHtml + iconsHtml + '</div>'
+          + flHtml + '<div class="mk-id">T' + tile + '</div></div>'
+          + '<div class="tooltip">' + baseTip + tipLines + '</div>';
+        overlay.appendChild(m);
+      });
+
+      bases.forEach(b => {
+        if (byTile[b.tile]) return;
+        const m = mk(b.tile); if (!m) return;
+        const zc = ZONE_COLORS[tz(b.tile)] || '#555';
+        const isBuild = b.status === 'construction';
+        m.innerHTML = '<div class="mk-inner ' + (isBuild ? 'mk-build' : '') + '" style="border-color:' + zc + '40;">'
+          + '<div class="mk-flag">' + (FLAGS[b.country] || '') + '</div>'
+          + '<div class="mk-base" style="background:' + zc + '30;">⚓</div>'
+          + '<div class="mk-id">T' + b.tile + (isBuild ? '*' : '') + '</div></div>'
+          + '<div class="tooltip">' + (FLAGS[b.country] || '') + ' ' + b.country + ' base' + (isBuild ? ' (building)' : '') + '</div>';
+        overlay.appendChild(m);
+      });
+
+      // ── Country cards ──
+      document.getElementById('country-cards').innerHTML = COUNTRIES.map(c => {
+        const myT = troops.filter(s => s.country === c);
+        const myB = bases.filter(b => b.country === c && b.status === 'active');
+        const myBuild = bases.filter(b => b.country === c && b.status === 'construction');
+        const myFl = fleets.filter(f => f.country === c);
+        const tc = {}; myT.forEach(s => { tc[s.type] = (tc[s.type] || 0) + 1; });
+        const inConf = conflicts.some(x => x.countries.includes(c));
+        const zc = ZONE_COLORS[c] || 'var(--text)';
+        const pips = Object.entries(tc).map(([t, n]) => '<span class="spip">' + se(t) + 'x' + n + '</span>').join('');
+        const flPips = myFl.map(f => '<span style="font-family:var(--fm);font-size:9px;color:#ffd166;">⚓' + f.name + '(' + (f.ship_ids || []).length + ')</span>').join(' ');
+        // EEZ fish stock for this country
+        const eezRow = fishByZone[c];
+        const eezStock = eezRow ? eezRow.stock : (ZONE_FISH_DATA[c]?.initial ?? '?');
+        const eezCap = eezRow ? eezRow.capacity : (ZONE_FISH_DATA[c]?.cap ?? '?');
+        const eezH = fishHealth(typeof eezStock === 'number' ? eezStock : 0, typeof eezCap === 'number' ? eezCap : 1);
+        return '<div class="cc"' + (inConf ? ' style="border-color:rgba(230,57,70,.5);"' : '') + '>' +
+          '<h3 style="color:' + zc + ';">' + (FLAGS[c] || '') + ' ' + c + '</h3>' +
+          '<div class="cc-stats">' +
+          '<div class="cs"><div class="csv">' + myT.length + '</div><div class="csl">Ships</div></div>' +
+          '<div class="cs"><div class="csv">' + myB.length + '</div><div class="csl">Bases</div></div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">' +
+          '<span style="font-family:var(--fm);font-size:9px;color:var(--text2);">EEZ Fish:</span>' +
+          '<span style="font-family:var(--fm);font-size:10px;font-weight:700;color:' + eezH.color + ';">' + eezStock + '/' + eezCap + '</span>' +
+          '<span style="font-family:var(--fm);font-size:8px;color:' + eezH.color + '88;">(' + eezH.label + ')</span>' +
+          '</div>' +
+          (pips ? '<div class="c-ships">' + pips + '</div>' : '') +
+          (flPips ? '<div style="margin-top:4px;">' + flPips + '</div>' : '') +
+          (myBuild.length ? '<div style="font-family:var(--fm);font-size:9px;color:#ffd166;margin-top:3px;">🏗 Building: ' + myBuild.length + '</div>' : '') +
+          (inConf ? '<div style="font-size:9px;color:var(--red);margin-top:3px;font-family:var(--fm);">⚠ In conflict</div>' : '') +
+          '</div>';
+      }).join('');
+
+      document.getElementById('legend-items').innerHTML = Object.entries(ZONE_COLORS).map(([z, c]) =>
+        '<div class="li-item"><div class="li-dot" style="background:' + c + ';opacity:.85;"></div>' + z + '</div>'
+      ).join('');
+
+      // ── Fish panel in sidebar ──
+      renderFishPanel(fishZones, boatsByZone);
+    }
+
+    function renderFishPanel(fishZones, boatsByZone) {
+      const el = document.getElementById('fish-panel-body');
+      if (!el) return;
+      const fishByZone = {};
+      (fishZones || []).forEach(f => { fishByZone[f.zone] = f; });
+      el.innerHTML = ALL_ZONES.map(z => {
+        const row = fishByZone[z];
+        const stock = row ? row.stock : (ZONE_FISH_DATA[z]?.initial ?? 0);
+        const cap = row ? row.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
+        const boats = boatsByZone[z] || 0;
+        const h = fishHealth(stock, cap);
+        const next = projectFish(stock, cap, boats);
+        const delta = next - stock;
+        const arrow = delta > 0.05 ? '↑' : delta < -0.05 ? '↓' : '→';
+        const pct = Math.min(100, Math.round(stock / cap * 100));
+        const zc = ZONE_COLORS[z] || '#555';
+        return '<div style="margin-bottom:9px;">'
+          + '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">'
+          + '<div style="width:9px;height:9px;border-radius:50%;background:' + zc + ';flex-shrink:0;"></div>'
+          + '<div style="font-family:var(--fh);font-size:11px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + z + '</div>'
+          + '<div style="font-family:var(--fm);font-size:10px;color:' + h.color + ';white-space:nowrap;">'
+          + stock + '/' + cap
+          + '</div>'
+          + '</div>'
+          + '<div style="background:rgba(255,255,255,.07);border-radius:2px;height:4px;overflow:hidden;margin-bottom:3px;">'
+          + '<div style="width:' + pct + '%;height:4px;background:' + h.color + ';border-radius:2px;"></div>'
+          + '</div>'
+          + '<div style="display:flex;justify-content:space-between;font-family:var(--fm);font-size:9px;color:var(--text2);">'
+          + '<span>' + (boats > 0 ? '🎣' + boats + ' boat' + (boats > 1 ? 's' : '') : 'no boats') + '</span>'
+          + '<span style="color:' + h.color + '88;">' + arrow + next + ' next</span>'
+          + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    document.getElementById('bmap').src = MAP_SRC;
+    document.getElementById('bmap').onload = () => { loadBoard(); };
+    window.addEventListener('resize', () => { if (bData.troops.length || bData.bases.length) renderBoard(); });
+    setInterval(loadBoard, 30000);
+
+  <\/script>
+</body>
+
+</html>`;
+
+    function launch(type) {
+      const win = window.open('about:blank', '_blank');
+      if (win) {
+        win.document.open();
+        win.document.write(type === 'game' ? gameCode : boardCode);
+        win.document.close();
+      } else {
+        alert('Please allow popups for this page to launch.');
+      }
+    }
   </script>
 </body>
 

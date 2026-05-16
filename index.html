@@ -900,57 +900,356 @@
     }
 
     /* ── Spy Cards ── */
-    .spy-card { background: rgba(157,78,221,.08); border: 1px solid rgba(157,78,221,.3); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
-    .spy-card.used { opacity: .45; border-style: dashed; }
-    .spy-card.locked { opacity: .55; border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.02); }
-    .spy-card-name { font-family: var(--fh); font-size: 14px; font-weight: 700; letter-spacing: 1px; color: #c77dff; text-transform: uppercase; }
-    .spy-card.locked .spy-card-name { color: var(--text2); }
-    .spy-card-desc { font-family: var(--fm); font-size: 10px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
-    .spy-badge { background: rgba(157,78,221,.18); border: 1px solid rgba(157,78,221,.32); color: #c77dff; font-family: var(--fm); font-size: 9px; padding: 2px 6px; border-radius: 3px; letter-spacing: .5px; text-transform: uppercase; display: inline-block; }
-    .spy-badge.used { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: var(--text2); }
-    .spy-badge.locked { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08); color: var(--text2); }
-    .spy-shop-row { border: 1px solid rgba(157,78,221,.25); border-radius: 9px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; background: rgba(157,78,221,.04); cursor: pointer; transition: border-color .18s, background .18s; }
-    .spy-shop-row:hover { border-color: rgba(157,78,221,.55); background: rgba(157,78,221,.1); }
-    .spy-shop-row.selected { border-color: #c77dff; background: rgba(157,78,221,.14); }
-    .spy-shop-row.locked-card { opacity: .5; cursor: default; pointer-events: none; }
-    .scs-icon { font-size: 20px; width: 32px; text-align: center; flex-shrink: 0; }
-    .scs-info { flex: 1; }
-    .scs-name { font-family: var(--fh); font-size: 13px; font-weight: 600; color: #c77dff; }
-    .scs-desc { font-family: var(--fm); font-size: 10px; color: var(--text2); margin-top: 2px; }
-    .scs-cost { font-family: var(--fm); font-size: 13px; color: var(--gold); font-weight: bold; flex-shrink: 0; }
-    .event-row { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--bdr); border-radius: 7px; margin-bottom: 6px; }
+    .spy-card {
+      background: rgba(157, 78, 221, .08);
+      border: 1px solid rgba(157, 78, 221, .3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .spy-card.used {
+      opacity: .45;
+      border-style: dashed;
+    }
+
+    .spy-card.locked {
+      opacity: .55;
+      border-color: rgba(255, 255, 255, .1);
+      background: rgba(255, 255, 255, .02);
+    }
+
+    .spy-card-name {
+      font-family: var(--fh);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #c77dff;
+      text-transform: uppercase;
+    }
+
+    .spy-card.locked .spy-card-name {
+      color: var(--text2);
+    }
+
+    .spy-card-desc {
+      font-family: var(--fm);
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    .spy-badge {
+      background: rgba(157, 78, 221, .18);
+      border: 1px solid rgba(157, 78, 221, .32);
+      color: #c77dff;
+      font-family: var(--fm);
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+
+    .spy-badge.used {
+      background: rgba(255, 255, 255, .05);
+      border-color: rgba(255, 255, 255, .1);
+      color: var(--text2);
+    }
+
+    .spy-badge.locked {
+      background: rgba(255, 255, 255, .04);
+      border-color: rgba(255, 255, 255, .08);
+      color: var(--text2);
+    }
+
+    .spy-shop-row {
+      border: 1px solid rgba(157, 78, 221, .25);
+      border-radius: 9px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(157, 78, 221, .04);
+      cursor: pointer;
+      transition: border-color .18s, background .18s;
+    }
+
+    .spy-shop-row:hover {
+      border-color: rgba(157, 78, 221, .55);
+      background: rgba(157, 78, 221, .1);
+    }
+
+    .spy-shop-row.selected {
+      border-color: #c77dff;
+      background: rgba(157, 78, 221, .14);
+    }
+
+    .spy-shop-row.locked-card {
+      opacity: .5;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .scs-icon {
+      font-size: 20px;
+      width: 32px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .scs-info {
+      flex: 1;
+    }
+
+    .scs-name {
+      font-family: var(--fh);
+      font-size: 13px;
+      font-weight: 600;
+      color: #c77dff;
+    }
+
+    .scs-desc {
+      font-family: var(--fm);
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    .scs-cost {
+      font-family: var(--fm);
+      font-size: 13px;
+      color: var(--gold);
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .event-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border: 1px solid var(--bdr);
+      border-radius: 7px;
+      margin-bottom: 6px;
+    }
 
     /* ── Fish Zone Widget ── */
-    .fz-card { border: 1px solid var(--bdr); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
-    .fz-card-header { display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: rgba(255,255,255,.03); }
-    .fz-card-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-    .fz-card-name { font-family: var(--fh); font-size: 14px; font-weight: 600; flex: 1; }
-    .fz-card-health { font-family: var(--fm); font-size: 10px; padding: 2px 7px; border-radius: 3px; border: 1px solid transparent; }
-    .fz-card-body { padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .fz-stat { text-align: center; }
-    .fz-stat-v { font-family: var(--fh); font-size: 20px; font-weight: 700; line-height: 1; }
-    .fz-stat-l { font-family: var(--fm); font-size: 9px; color: var(--text2); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
-    .fz-bar-wrap { padding: 0 14px 12px; }
-    .fz-bar-bg { background: rgba(255,255,255,.07); border-radius: 3px; height: 6px; overflow: hidden; }
-    .fz-bar-fill { height: 6px; border-radius: 3px; transition: width .3s; }
-    .fz-bar-labels { display: flex; justify-content: space-between; margin-top: 3px; font-family: var(--fm); font-size: 9px; color: var(--text2); }
-    .fz-boats { padding: 0 14px 10px; font-family: var(--fm); font-size: 10px; color: var(--text2); line-height: 1.6; }
-    .fz-proj { padding: 0 14px 12px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .fz-proj-box { background: rgba(255,255,255,.05); border: 1px solid var(--bdr); border-radius: 6px; padding: 6px 10px; text-align: center; }
-    .fz-proj-v { font-family: var(--fh); font-size: 16px; font-weight: 700; }
-    .fz-proj-l { font-family: var(--fm); font-size: 9px; color: var(--text2); }
+    .fz-card {
+      border: 1px solid var(--bdr);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .fz-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .fz-card-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .fz-card-name {
+      font-family: var(--fh);
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .fz-card-health {
+      font-family: var(--fm);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid transparent;
+    }
+
+    .fz-card-body {
+      padding: 10px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .fz-stat {
+      text-align: center;
+    }
+
+    .fz-stat-v {
+      font-family: var(--fh);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .fz-stat-l {
+      font-family: var(--fm);
+      font-size: 9px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-top: 2px;
+    }
+
+    .fz-bar-wrap {
+      padding: 0 14px 12px;
+    }
+
+    .fz-bar-bg {
+      background: rgba(255, 255, 255, .07);
+      border-radius: 3px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .fz-bar-fill {
+      height: 6px;
+      border-radius: 3px;
+      transition: width .3s;
+    }
+
+    .fz-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 3px;
+      font-family: var(--fm);
+      font-size: 9px;
+      color: var(--text2);
+    }
+
+    .fz-boats {
+      padding: 0 14px 10px;
+      font-family: var(--fm);
+      font-size: 10px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .fz-proj {
+      padding: 0 14px 12px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .fz-proj-box {
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--bdr);
+      border-radius: 6px;
+      padding: 6px 10px;
+      text-align: center;
+    }
+
+    .fz-proj-v {
+      font-family: var(--fh);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .fz-proj-l {
+      font-family: var(--fm);
+      font-size: 9px;
+      color: var(--text2);
+    }
+
     /* Simulator */
-    .fz-sim { padding: 10px 14px 14px; border-top: 1px solid var(--bdr); margin-top: 2px; }
-    .fz-sim-title { font-family: var(--fh); font-size: 11px; font-weight: 600; letter-spacing: .5px; color: var(--text2); text-transform: uppercase; margin-bottom: 8px; }
-    .fz-sim-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-    .fz-sim-label { font-family: var(--fm); font-size: 10px; color: var(--text2); white-space: nowrap; }
-    .fz-sim-input { background: rgba(255,255,255,.06); border: 1px solid var(--bdr); border-radius: 5px; color: var(--text); font-family: var(--fm); font-size: 12px; padding: 4px 8px; width: 64px; text-align: center; }
-    .fz-sim-input:focus { outline: none; border-color: var(--teal); }
-    .fz-sim-chart { display: flex; align-items: flex-end; gap: 4px; height: 64px; padding: 0 0 4px; }
-    .fz-sim-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
-    .fz-sim-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 3px; transition: height .25s, background .25s; }
-    .fz-sim-bar-lbl { font-family: var(--fm); font-size: 8px; color: var(--text2); white-space: nowrap; }
-    .fz-sim-warn { font-family: var(--fm); font-size: 10px; color: #e63946; margin-top: 6px; line-height: 1.5; }
+    .fz-sim {
+      padding: 10px 14px 14px;
+      border-top: 1px solid var(--bdr);
+      margin-top: 2px;
+    }
+
+    .fz-sim-title {
+      font-family: var(--fh);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      color: var(--text2);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .fz-sim-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .fz-sim-label {
+      font-family: var(--fm);
+      font-size: 10px;
+      color: var(--text2);
+      white-space: nowrap;
+    }
+
+    .fz-sim-input {
+      background: rgba(255, 255, 255, .06);
+      border: 1px solid var(--bdr);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: var(--fm);
+      font-size: 12px;
+      padding: 4px 8px;
+      width: 64px;
+      text-align: center;
+    }
+
+    .fz-sim-input:focus {
+      outline: none;
+      border-color: var(--teal);
+    }
+
+    .fz-sim-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 64px;
+      padding: 0 0 4px;
+    }
+
+    .fz-sim-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .fz-sim-bar {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      min-height: 3px;
+      transition: height .25s, background .25s;
+    }
+
+    .fz-sim-bar-lbl {
+      font-family: var(--fm);
+      font-size: 8px;
+      color: var(--text2);
+      white-space: nowrap;
+    }
+
+    .fz-sim-warn {
+      font-family: var(--fm);
+      font-size: 10px;
+      color: #e63946;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
 
     .ni {
       display: flex;
@@ -1326,11 +1625,17 @@
   <div id="screen-player" class="screen">
     <div class="app-layout">
       <div class="sidebar">
-        <div id="p-season-banner" style="background:rgba(0,180,216,.07);border:1px solid var(--bdr2);border-radius:8px;padding:9px 13px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div id="p-season-banner"
+          style="background:rgba(0,180,216,.07);border:1px solid var(--bdr2);border-radius:8px;padding:9px 13px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
           <div>
-            <div style="font-family:var(--fm);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;">Turn <span id="pb-turn">—</span></div>
-            <div id="pb-season-label" style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--teal);letter-spacing:1px;line-height:1.2;">—</div>
-            <div id="pb-season-hint" style="font-family:var(--fm);font-size:9px;color:var(--text2);margin-top:2px;line-height:1.4;"></div>
+            <div
+              style="font-family:var(--fm);font-size:9px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;">
+              Turn <span id="pb-turn">—</span></div>
+            <div id="pb-season-label"
+              style="font-family:var(--fh);font-size:16px;font-weight:700;color:var(--teal);letter-spacing:1px;line-height:1.2;">
+              —</div>
+            <div id="pb-season-hint"
+              style="font-family:var(--fm);font-size:9px;color:var(--text2);margin-top:2px;line-height:1.4;"></div>
           </div>
           <div id="pb-season-icon" style="font-size:28px;opacity:.6;"></div>
         </div>
@@ -1352,7 +1657,9 @@
             <div class="stat-l">Income</div>
           </div>
         </div>
-        <div id="p-income-breakdown" style="font-family:var(--fm);font-size:10px;color:var(--text2);background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;margin-bottom:12px;line-height:1.7;"></div>
+        <div id="p-income-breakdown"
+          style="font-family:var(--fm);font-size:10px;color:var(--text2);background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;margin-bottom:12px;line-height:1.7;">
+        </div>
         <div class="fb mb10">
           <div class="stl m0">Your Fleet</div>
           <button class="btn btn-o btn-sm" onclick="openCreateFleet()">⭐ New Fleet</button>
@@ -1361,9 +1668,12 @@
         <div id="p-bases-sidebar"></div>
         <div id="p-cons"></div>
         <div class="border-top-bdr mt14">
-          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleFishZonesPanel()">🐟 Fish Zone Status</button>
-          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleGoldTransferPanel()">💰 Transfer Gold</button>
-          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleRulesPanel()">📖 Rules Reference</button>
+          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleFishZonesPanel()">🐟 Fish
+            Zone Status</button>
+          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleGoldTransferPanel()">💰
+            Transfer Gold</button>
+          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleRulesPanel()">📖 Rules
+            Reference</button>
           <button class="btn btn-o btn-sm btn-full" onclick="handleRefresh()">↻ Refresh</button>
         </div>
       </div>
@@ -1435,7 +1745,8 @@
           </div>
           <div class="card" id="p-spycard-shop-card">
             <div class="card-title" style="color:#c77dff;">🃏 Spy Cards — 6g each</div>
-            <div class="rn">Purchase a spy card for 6g. Cards are secret — only you and the GM can see them. Some card types may be locked by the GM.</div>
+            <div class="rn">Purchase a spy card for 6g. Cards are secret — only you and the GM can see them. Some card
+              types may be locked by the GM.</div>
             <div id="p-card-shop-list"></div>
             <div id="p-card-shop-msg" class="hidden mt8"></div>
           </div>
@@ -1461,7 +1772,8 @@
           </div>
           <div class="card" id="p-mycard-panel">
             <div class="card-title" style="color:#c77dff;">🃏 My Spy Cards — Use This Turn</div>
-            <div class="rn">Play a card during Summer. Cards that target ships or fleets require you to pick a target. The GM will apply the effect.</div>
+            <div class="rn">Play a card during Summer. Cards that target ships or fleets require you to pick a target.
+              The GM will apply the effect.</div>
             <div id="p-mycard-list"></div>
             <div id="p-mycard-msg" class="hidden mt8"></div>
           </div>
@@ -1470,11 +1782,13 @@
           <div class="card">
             <div class="card-title">🐟 Fish Zone Status
               <div style="display:flex;gap:6px;">
-                <button class="btn btn-o btn-sm" onclick="loadPlayerData().then(()=>renderFishZones('p-fz'))">↻ Refresh</button>
+                <button class="btn btn-o btn-sm" onclick="loadPlayerData().then(()=>renderFishZones('p-fz'))">↻
+                  Refresh</button>
                 <button class="btn btn-o btn-sm" onclick="toggleFishZonesPanel()">← Back</button>
               </div>
             </div>
-            <div class="rn">Current fish stocks, carrying capacity, and projected next-turn populations based on current fishing pressure.</div>
+            <div class="rn">Current fish stocks, carrying capacity, and projected next-turn populations based on current
+              fishing pressure.</div>
             <div id="p-fz"></div>
           </div>
         </div>
@@ -1483,7 +1797,8 @@
             <div class="card-title">💰 Gold Transfer
               <button class="btn btn-o btn-sm" onclick="toggleGoldTransferPanel()">← Back</button>
             </div>
-            <div class="rn">Send gold to another country anytime. Both sides are logged — the GM can see all transfers.</div>
+            <div class="rn">Send gold to another country anytime. Both sides are logged — the GM can see all transfers.
+            </div>
             <div class="g2 mt8">
               <div class="fg"><label>Send To</label>
                 <select id="gt-to" title="Country to send gold to">
@@ -1504,7 +1819,8 @@
             <div id="gt-result" class="hidden mt8"></div>
             <div class="dv"></div>
             <div class="stl">Transfer History (this session)</div>
-            <div id="gt-log" class="tm mu" style="font-size:11px;max-height:160px;overflow-y:auto;">No transfers yet.</div>
+            <div id="gt-log" class="tm mu" style="font-size:11px;max-height:160px;overflow-y:auto;">No transfers yet.
+            </div>
           </div>
         </div>
         <div id="panel-rules" class="hidden">
@@ -1523,89 +1839,230 @@
               <div class="rn" style="margin-bottom:10px;">All ship types, their costs, and combat stats.</div>
               <div style="overflow-x:auto;">
                 <table class="tbl" style="width:100%;font-size:11px;">
-                  <thead><tr><th>Ship</th><th>Cost</th><th>ATK</th><th>HP</th><th>SPD</th><th>RNG</th><th>Notes</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>Ship</th>
+                      <th>Cost</th>
+                      <th>ATK</th>
+                      <th>HP</th>
+                      <th>SPD</th>
+                      <th>RNG</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
                   <tbody>
-                    <tr><td>🎣 Fishing Boat</td><td class="tgo">3g</td><td>0</td><td>1</td><td>2</td><td>2</td><td style="color:var(--text2);font-size:10px;">Fishes 1/turn</td></tr>
-                    <tr><td>🛡 Coast Guard</td><td class="tgo">3g</td><td>3</td><td>3</td><td>4</td><td>2</td><td style="color:var(--text2);font-size:10px;">Territorial waters only</td></tr>
-                    <tr><td>⚡ FAC</td><td class="tgo">6g</td><td>6</td><td>1</td><td>5</td><td>5</td><td style="color:var(--text2);font-size:10px;">50% chance to attack first</td></tr>
-                    <tr><td>🚢 Destroyer</td><td class="tgo">13g</td><td>6</td><td>8</td><td>4</td><td>∞</td><td style="color:var(--text2);font-size:10px;">Unlimited range</td></tr>
+                    <tr>
+                      <td>🎣 Fishing Boat</td>
+                      <td class="tgo">3g</td>
+                      <td>—</td>
+                      <td>1</td>
+                      <td>2</td>
+                      <td>4</td>
+                      <td style="color:var(--text2);font-size:10px;">1 fish/turn. Cannot attack.</td>
+                    </tr>
+                    <tr>
+                      <td>🛡 Coast Guard</td>
+                      <td class="tgo">3g</td>
+                      <td>D4</td>
+                      <td>4</td>
+                      <td>4</td>
+                      <td>2</td>
+                      <td style="color:var(--text2);font-size:10px;">Territorial waters</td>
+                    </tr>
+                    <tr>
+                      <td>⚡ FAC</td>
+                      <td class="tgo">6g</td>
+                      <td>D6</td>
+                      <td>3</td>
+                      <td>4</td>
+                      <td>5</td>
+                      <td style="color:var(--text2);font-size:10px;">D4 in water cannon engagements</td>
+                    </tr>
+                    <tr>
+                      <td>🚢 Destroyer</td>
+                      <td class="tgo">13g</td>
+                      <td>2×D4</td>
+                      <td>9</td>
+                      <td>3</td>
+                      <td>∞</td>
+                      <td style="color:var(--text2);font-size:10px;">Unlimited range. No base tether.</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
-              <div class="rn" style="margin-top:10px;font-size:11px;">Attack values determine dice tier. HP = hit points before sinking.</div>
+              <div class="rn" style="margin-top:10px;font-size:11px;">Attack values determine dice tier. HP = hit points
+                before sinking.</div>
             </div>
             <div id="rt-bases" class="tp">
-              <div class="rn" style="margin-bottom:8px;">Bases extend your reach across the sea. Ships cannot go beyond their range from their nearest base.</div>
+              <div class="rn" style="margin-bottom:8px;">Bases extend your reach across the sea. Ships cannot go beyond
+                their range from their nearest base.</div>
               <div class="fleet-item" style="flex-direction:column;align-items:flex-start;gap:6px;">
                 <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--teal);">Starting Base</div>
-                <div style="font-family:var(--fm);font-size:11px;color:var(--text2);">Free at game start — placed in your EEZ during Setup.</div>
+                <div style="font-family:var(--fm);font-size:11px;color:var(--text2);">Free at game start — placed in
+                  your EEZ during Setup.</div>
               </div>
               <div class="fleet-item" style="flex-direction:column;align-items:flex-start;gap:6px;">
-                <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--gold);">Building a Base — 8g</div>
-                <div style="font-family:var(--fm);font-size:11px;color:var(--text2);">Order during Winter. Anchor ship must be uninterrupted for 1 full turn. If anchor ship is attacked, base construction restarts. If anchor ship is destroyed, 8g is lost.</div>
+                <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--gold);">Building a Base —
+                  8g</div>
+                <div style="font-family:var(--fm);font-size:11px;color:var(--text2);">Order during Winter. Anchor ship
+                  must be uninterrupted for 1 full turn. If anchor ship is attacked, base construction restarts. If
+                  anchor ship is destroyed, 8g is lost.</div>
               </div>
               <div class="fleet-item" style="flex-direction:column;align-items:flex-start;gap:6px;">
                 <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--red);">Losing a Base</div>
-                <div style="font-family:var(--fm);font-size:11px;color:var(--text2);">Bases can be destroyed by enemy combat ships. All ships using that base as their range anchor may become stranded.</div>
+                <div style="font-family:var(--fm);font-size:11px;color:var(--text2);">Bases can be destroyed by enemy
+                  combat ships. All ships using that base as their range anchor may become stranded.</div>
               </div>
             </div>
             <div id="rt-combat" class="tp">
-              <div class="rn" style="margin-bottom:8px;">Combat is initiated when enemy ships are on adjacent or same tiles after movement.</div>
+              <div class="rn" style="margin-bottom:8px;">Combat is initiated when enemy ships are on adjacent or same
+                tiles after movement.</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
                 <div class="fleet-item" style="flex-direction:column;align-items:flex-start;gap:4px;">
                   <div style="font-family:var(--fh);font-size:11px;color:var(--teal);">DISABLING ATTACK</div>
-                  <div style="font-family:var(--fm);font-size:10px;color:var(--text2);">Only vs fishing boats. Prevents fishing &amp; movement for 1 turn. Does not destroy the ship.</div>
+                  <div style="font-family:var(--fm);font-size:10px;color:var(--text2);">Only vs fishing boats. Prevents
+                    fishing &amp; movement for 1 turn. Does not destroy the ship.</div>
                 </div>
                 <div class="fleet-item" style="flex-direction:column;align-items:flex-start;gap:4px;">
                   <div style="font-family:var(--fh);font-size:11px;color:var(--red);">LETHAL ATTACK</div>
-                  <div style="font-family:var(--fm);font-size:10px;color:var(--text2);">Destroys enemy ships when damage exceeds their HP. Combat units only.</div>
+                  <div style="font-family:var(--fm);font-size:10px;color:var(--text2);">Destroys enemy ships when damage
+                    exceeds their HP. Combat units only.</div>
                 </div>
               </div>
-              <div class="rn" style="font-size:11px;"><b>Rows:</b> Before combat, divide fleet into front/middle/back rows (roughly equal total HP). Hits are assigned to the frontmost occupied row.</div>
-              <div class="rn" style="font-size:11px;margin-top:6px;"><b>FAC:</b> Always has 50% chance to attack first, even against faster ships.</div>
+              <div class="rn" style="font-size:11px;"><b>Rows:</b> Before combat, divide fleet into front/middle/back
+                rows (roughly equal total HP). Hits are assigned to the frontmost occupied row.</div>
+              <div class="rn" style="font-size:11px;margin-top:6px;"><b>FAC:</b> Always has 50% chance to attack first,
+                even against faster ships.</div>
             </div>
             <div id="rt-seasons" class="tp">
               <div style="display:grid;grid-template-columns:1fr;gap:8px;">
                 <div class="fleet-item" style="border-color:var(--gold);gap:10px;">
                   <div style="font-size:22px;">🍂</div>
-                  <div><div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--gold);">Fall</div><div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Submit fishing orders. Boats on zone tiles catch fish. Base income + fishing income collected.</div></div>
+                  <div>
+                    <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--gold);">Fall</div>
+                    <div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Submit fishing
+                      orders. Boats on zone tiles catch fish. Base income + fishing income collected.</div>
+                  </div>
                 </div>
                 <div class="fleet-item" style="border-color:#8ecae6;gap:10px;">
                   <div style="font-size:22px;">❄️</div>
-                  <div><div style="font-family:var(--fh);font-size:13px;font-weight:600;color:#8ecae6;">Winter</div><div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Purchase ships and order base construction. New ships spawn at your chosen active base.</div></div>
+                  <div>
+                    <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:#8ecae6;">Winter</div>
+                    <div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Purchase ships
+                      and order base construction. New ships spawn at your chosen active base.</div>
+                  </div>
                 </div>
                 <div class="fleet-item" style="border-color:var(--green);gap:10px;">
                   <div style="font-size:22px;">🌸</div>
-                  <div><div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--green);">Spring</div><div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Submit movement orders. Fleets move together. Solo ships move individually. GM reviews all moves.</div></div>
+                  <div>
+                    <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--green);">Spring</div>
+                    <div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Submit movement
+                      orders. Fleets move together. Solo ships move individually. GM reviews all moves.</div>
+                  </div>
                 </div>
                 <div class="fleet-item" style="border-color:var(--red);gap:10px;">
                   <div style="font-size:22px;">⚔️</div>
-                  <div><div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--red);">Summer</div><div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Diplomacy &amp; combat. No orders to submit. GM contacts you if ships are in conflict. Play spy cards.</div></div>
+                  <div>
+                    <div style="font-family:var(--fh);font-size:13px;font-weight:600;color:var(--red);">Summer</div>
+                    <div style="font-family:var(--fm);font-size:11px;color:var(--text2);margin-top:2px;">Diplomacy &amp;
+                      combat. No orders to submit. GM contacts you if ships are in conflict. Play spy cards.</div>
+                  </div>
                 </div>
               </div>
             </div>
             <div id="rt-zones" class="tp">
-              <div class="rn" style="margin-bottom:8px;">Each zone has a carrying capacity (max population) and fish population. Overfishing collapses zones.</div>
+              <div class="rn" style="margin-bottom:8px;">Each zone has a carrying capacity (max population) and fish
+                population. Overfishing collapses zones.</div>
               <div style="overflow-x:auto;">
                 <table class="tbl" style="width:100%;font-size:11px;">
-                  <thead><tr><th>Zone</th><th>Cap</th><th>Start</th><th>Type</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>Zone</th>
+                      <th>Cap</th>
+                      <th>Start</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
                   <tbody>
-                    <tr><td>🇨🇳 China EEZ</td><td>7</td><td>3</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🇹🇼 Taiwan EEZ</td><td>4</td><td>2</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🇵🇭 Philippines EEZ</td><td>6</td><td>2</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🇲🇾 Malaysia EEZ</td><td>5</td><td>2</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🇮🇩 Indonesia EEZ</td><td>5</td><td>3</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🇹🇭 Thailand EEZ</td><td>6</td><td>3</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🇰🇭 Cambodia EEZ</td><td>4</td><td>2</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🇻🇳 Vietnam EEZ</td><td>6</td><td>2</td><td><span class="badge bt">EEZ</span></td></tr>
-                    <tr><td>🟢 Green Neutral</td><td>15</td><td>6</td><td><span class="badge bgr">Neutral</span></td></tr>
-                    <tr><td>🟠 Orange Neutral</td><td>15</td><td>6</td><td><span class="badge bgo">Neutral</span></td></tr>
-                    <tr><td>🔵 Blue Neutral</td><td>15</td><td>6</td><td><span class="badge bt">Neutral</span></td></tr>
-                    <tr><td>🟣 Purple Neutral</td><td>15</td><td>6</td><td><span class="badge" style="background:rgba(157,78,221,.15);color:#c77dff;border:1px solid rgba(157,78,221,.3);">Neutral</span></td></tr>
+                    <tr>
+                      <td>🇨🇳 China EEZ</td>
+                      <td>16</td>
+                      <td>4</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🇹🇼 Taiwan EEZ</td>
+                      <td>6</td>
+                      <td>2</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🇵🇭 Philippines EEZ</td>
+                      <td>10</td>
+                      <td>2</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🇲🇾 Malaysia EEZ</td>
+                      <td>8</td>
+                      <td>2</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🇮🇩 Indonesia EEZ</td>
+                      <td>8</td>
+                      <td>3</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🇹🇭 Thailand EEZ</td>
+                      <td>12</td>
+                      <td>3</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🇰🇭 Cambodia EEZ</td>
+                      <td>6</td>
+                      <td>2</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🇻🇳 Vietnam EEZ</td>
+                      <td>10</td>
+                      <td>2</td>
+                      <td><span class="badge bt">EEZ</span></td>
+                    </tr>
+                    <tr>
+                      <td>🟢 Green Neutral</td>
+                      <td>30</td>
+                      <td>6</td>
+                      <td><span class="badge bgr">Neutral</span></td>
+                    </tr>
+                    <tr>
+                      <td>🟠 Orange Neutral</td>
+                      <td>30</td>
+                      <td>6</td>
+                      <td><span class="badge bgo">Neutral</span></td>
+                    </tr>
+                    <tr>
+                      <td>🔵 Blue Neutral</td>
+                      <td>30</td>
+                      <td>6</td>
+                      <td><span class="badge bt">Neutral</span></td>
+                    </tr>
+                    <tr>
+                      <td>🟣 Purple Neutral</td>
+                      <td>30</td>
+                      <td>6</td>
+                      <td><span class="badge"
+                          style="background:rgba(157,78,221,.15);color:#c77dff;border:1px solid rgba(157,78,221,.3);">Neutral</span>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
-              <div class="rn" style="margin-top:8px;font-size:11px;">EEZ = Exclusive Economic Zone. You must control your EEZ with coast guard to prevent others from fishing in it.</div>
+              <div class="rn" style="margin-top:8px;font-size:11px;">EEZ = Exclusive Economic Zone. You must control
+                your EEZ with coast guard to prevent others from fishing in it.</div>
             </div>
           </div>
         </div>
@@ -1666,8 +2123,11 @@
             <div class="card-title">Approved Movement Orders
               <button class="btn btn-o btn-sm" onclick="gmClearApproved()">Clear All</button>
             </div>
-            <div class="rn">Tick off individual spring movement orders as you review them. Approved moves are recorded here for reference — the actual tile changes happen when you click Approve &amp; Next Season.</div>
-            <div id="approved-moves-list"><div class="mu fs12">No spring orders yet.</div></div>
+            <div class="rn">Tick off individual spring movement orders as you review them. Approved moves are recorded
+              here for reference — the actual tile changes happen when you click Approve &amp; Next Season.</div>
+            <div id="approved-moves-list">
+              <div class="mu fs12">No spring orders yet.</div>
+            </div>
           </div>
         </div>
         <div id="gt-troops" class="tp">
@@ -1784,14 +2244,17 @@
         <div id="gt-fish" class="tp">
           <div class="card">
             <div class="card-title">Fish Zone Status
-              <button class="btn btn-o btn-sm" onclick="loadGMData().then(()=>renderFishZones('gm-fz'))">↻ Refresh</button>
+              <button class="btn btn-o btn-sm" onclick="loadGMData().then(()=>renderFishZones('gm-fz'))">↻
+                Refresh</button>
             </div>
-            <div class="rn">Live stock levels, carrying capacity, boats present, active effects, and next-turn projections. Edit current stock directly to correct for bonus fish cards or special events.</div>
+            <div class="rn">Live stock levels, carrying capacity, boats present, active effects, and next-turn
+              projections. Edit current stock directly to correct for bonus fish cards or special events.</div>
             <div id="gm-fz"></div>
           </div>
           <div class="card">
             <div class="card-title">Edit Fish Stock</div>
-            <div class="rn">Manually set the current fish stock for a zone (e.g. after a Bonus Fish card or a special event).</div>
+            <div class="rn">Manually set the current fish stock for a zone (e.g. after a Bonus Fish card or a special
+              event).</div>
             <div class="g2 mt8">
               <div class="fg"><label>Zone</label>
                 <select id="fz-edit-zone" title="Select zone to edit">
@@ -1814,7 +2277,8 @@
                 <button class="btn btn-sm btn-o" onclick="gmToggleCards()">Enable/Disable Cards</button>
               </div>
             </div>
-            <div class="rn">Enable cards to allow players to purchase them (6g each). Each card type can be toggled individually. Cards marked Used are deleted after GM confirms the effect.</div>
+            <div class="rn">Enable cards to allow players to purchase them (6g each). Each card type can be toggled
+              individually. Cards marked Used are deleted after GM confirms the effect.</div>
             <div class="stl mt8">Card Types — Enable/Disable Individually</div>
             <div id="gm-card-types"></div>
             <div class="dv"></div>
@@ -1825,9 +2289,15 @@
             <div class="card-title">Issue Card to Player</div>
             <div class="g2">
               <div class="fg"><label>Country</label><select id="issue-c" title="Country to give card to">
-                <option>China</option><option>Taiwan</option><option>Philippines</option><option>Malaysia</option>
-                <option>Indonesia</option><option>Thailand</option><option>Cambodia</option><option>Vietnam</option>
-              </select></div>
+                  <option>China</option>
+                  <option>Taiwan</option>
+                  <option>Philippines</option>
+                  <option>Malaysia</option>
+                  <option>Indonesia</option>
+                  <option>Thailand</option>
+                  <option>Cambodia</option>
+                  <option>Vietnam</option>
+                </select></div>
               <div class="fg"><label>Card Type</label><select id="issue-t" title="Card type to issue"></select></div>
             </div>
             <button class="btn btn-o btn-sm" onclick="gmIssueCard()">Issue Free Card</button>
@@ -1837,19 +2307,23 @@
         <div id="gt-events" class="tp">
           <div class="card">
             <div class="card-title">Special Event Controls</div>
-            <div class="rn">Use these tools when an outside event changes the game state — sanction a country, apply event modifiers, disable fishing boats, etc.</div>
+            <div class="rn">Use these tools when an outside event changes the game state — sanction a country, apply
+              event modifiers, disable fishing boats, etc.</div>
             <div class="stl mt8">Disable / Enable a Fishing Boat</div>
             <div class="event-row">
-              <div class="fg" style="margin:0;flex:1;"><label>Ship ID</label><input type="text" id="ev-fb-id" placeholder="VNM_FB-01" style="width:130px;"></div>
+              <div class="fg" style="margin:0;flex:1;"><label>Ship ID</label><input type="text" id="ev-fb-id"
+                  placeholder="VNM_FB-01" style="width:130px;"></div>
               <button class="btn btn-o btn-sm" onclick="gmEvDisableShip(true)">Disable</button>
               <button class="btn btn-o btn-sm" onclick="gmEvDisableShip(false)">Re-enable</button>
             </div>
             <div id="ev-fb-msg" class="hidden mt8"></div>
             <div class="dv"></div>
             <div class="stl">Disabling Attack (mark ship as non-attacking)</div>
-            <div class="rn" style="margin-bottom:8px;">A disabled-attack ship can still move but cannot initiate combat. GM sets this manually after a spy card or event.</div>
+            <div class="rn" style="margin-bottom:8px;">A disabled-attack ship can still move but cannot initiate combat.
+              GM sets this manually after a spy card or event.</div>
             <div class="event-row">
-              <div class="fg" style="margin:0;flex:1;"><label>Ship ID</label><input type="text" id="ev-atk-id" placeholder="CHN_DD-01" style="width:130px;"></div>
+              <div class="fg" style="margin:0;flex:1;"><label>Ship ID</label><input type="text" id="ev-atk-id"
+                  placeholder="CHN_DD-01" style="width:130px;"></div>
               <button class="btn btn-o btn-sm" onclick="gmEvDisableAttack(true)">Disable Attack</button>
               <button class="btn btn-o btn-sm" onclick="gmEvDisableAttack(false)">Restore</button>
             </div>
@@ -1857,7 +2331,8 @@
             <div class="dv"></div>
             <div class="stl">Bulk Edit — Any Ship Field</div>
             <div class="event-row" style="flex-wrap:wrap;gap:8px;">
-              <div class="fg" style="margin:0;"><label>Ship ID</label><input type="text" id="ev-field-id" placeholder="CHN_DD-01" style="width:110px;"></div>
+              <div class="fg" style="margin:0;"><label>Ship ID</label><input type="text" id="ev-field-id"
+                  placeholder="CHN_DD-01" style="width:110px;"></div>
               <div class="fg" style="margin:0;"><label>Field</label>
                 <select id="ev-field-name" style="width:130px;" title="Select field to edit">
                   <option value="tile">Tile</option>
@@ -1869,14 +2344,17 @@
                   <option value="type">Ship Type</option>
                 </select>
               </div>
-              <div class="fg" style="margin:0;"><label>Value</label><input type="text" id="ev-field-val" placeholder="new value" style="width:100px;"></div>
+              <div class="fg" style="margin:0;"><label>Value</label><input type="text" id="ev-field-val"
+                  placeholder="new value" style="width:100px;"></div>
               <button class="btn btn-o btn-sm" onclick="gmEvEditField()">Apply</button>
             </div>
             <div id="ev-field-msg" class="hidden mt8"></div>
             <div class="dv"></div>
             <div class="stl">Broadcast Event Message to All Players</div>
             <div class="event-row" style="flex-wrap:wrap;gap:8px;">
-              <div class="fg" style="margin:0;flex:1;"><label>Message</label><input type="text" id="ev-msg-text" placeholder="Special event: oil spill in Blue Zone — no fishing this turn" style="min-width:200px;"></div>
+              <div class="fg" style="margin:0;flex:1;"><label>Message</label><input type="text" id="ev-msg-text"
+                  placeholder="Special event: oil spill in Blue Zone — no fishing this turn" style="min-width:200px;">
+              </div>
               <button class="btn btn-o btn-sm" onclick="gmBroadcast()">Broadcast</button>
             </div>
             <div id="ev-msg-res" class="hidden mt8"></div>
@@ -1897,6 +2375,9 @@
             </div>
             <button class="btn btn-g btn-sm" onclick="pushTilesToDB()">Push Tiles to Database</button>
             <div id="tile-msg" class="mt8 hidden"></div>
+            <button class="btn btn-g btn-sm" onclick="pushZonesToDB()" style="margin-top:6px;">Push Zone Fish Data (12
+              zones)</button>
+            <div id="zone-msg" class="mt8 hidden"></div>
           </div>
         </div>
         <div id="gt-settings" class="tp">
@@ -1996,7 +2477,9 @@
     </div>
     <div id="m-playcard" class="mbox hidden">
       <div class="fb" style="margin-bottom:12px;">
-        <span style="font-family:var(--fh);font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#c77dff;">🃏 Play Spy Card</span>
+        <span
+          style="font-family:var(--fh);font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#c77dff;">🃏
+          Play Spy Card</span>
         <button class="btn btn-o btn-sm" onclick="closeMod()">✕</button>
       </div>
       <div id="playcard-info" style="margin-bottom:12px;"></div>
@@ -2004,8 +2487,14 @@
         <div class="fg"><label>Target Country</label>
           <select id="pc-target-c" title="Target country" onchange="pcTargetCountryChange()">
             <option value="">— select —</option>
-            <option>China</option><option>Taiwan</option><option>Philippines</option><option>Malaysia</option>
-            <option>Indonesia</option><option>Thailand</option><option>Cambodia</option><option>Vietnam</option>
+            <option>China</option>
+            <option>Taiwan</option>
+            <option>Philippines</option>
+            <option>Malaysia</option>
+            <option>Indonesia</option>
+            <option>Thailand</option>
+            <option>Cambodia</option>
+            <option>Vietnam</option>
           </select>
         </div>
         <div id="pc-ship-row" class="fg hidden"><label>Target Ship</label>
@@ -2023,10 +2512,18 @@
         <div id="pc-zone-row" class="fg hidden"><label>Target Fishing Zone</label>
           <select id="pc-target-zone" title="Target fishing zone">
             <option value="">— select zone —</option>
-            <option>China</option><option>Taiwan</option><option>Philippines</option><option>Malaysia</option>
-            <option>Indonesia</option><option>Thailand</option><option>Cambodia</option><option>Vietnam</option>
-            <option>Green Neutral Zone</option><option>Blue Neutral Zone</option>
-            <option>Purple Neutral Zone</option><option>Orange Neutral Zone</option>
+            <option>China</option>
+            <option>Taiwan</option>
+            <option>Philippines</option>
+            <option>Malaysia</option>
+            <option>Indonesia</option>
+            <option>Thailand</option>
+            <option>Cambodia</option>
+            <option>Vietnam</option>
+            <option>Green Neutral Zone</option>
+            <option>Blue Neutral Zone</option>
+            <option>Purple Neutral Zone</option>
+            <option>Orange Neutral Zone</option>
           </select>
         </div>
       </div>
@@ -2053,7 +2550,7 @@
     const COUNTRIES = ['China', 'Taiwan', 'Philippines', 'Malaysia', 'Indonesia', 'Thailand', 'Cambodia', 'Vietnam'];
 
     // Base amount of gold each country earns per Fall season
-    const BASE_INCOME = { China: 4, Taiwan: 3, Philippines: 3, Malaysia: 2, Indonesia: 2, Thailand: 3, Cambodia: 2, Vietnam: 3 };
+    const BASE_INCOME = { China: 5, Taiwan: 3, Philippines: 3, Malaysia: 3, Indonesia: 4, Thailand: 4, Cambodia: 2, Vietnam: 3 };
 
     // Geographical Exclusive Economic Zones (EEZ) for each country
     const EEZ = { China: ['2', '3', '6', '7', '8', '9', '10', '11'], Vietnam: ['1', '5', '14', '24', '35'], Taiwan: ['19', '20', '30'], Philippines: ['41', '51', '60', '68', '69'], Malaysia: ['76', '77', '78', '79'], Indonesia: ['52', '61', '70', '71'], Cambodia: ['23', '33', '34'], Thailand: ['4', '12', '13', '21', '31', '42'] };
@@ -2062,23 +2559,23 @@
 
     // Icons used for the turn status indicator
     const SEASON_ICONS = { setup: '◈', fall: '◆', winter: '❄', spring: '◉', summer: '⚔' };
-    const SHIP_STATS = { 'Fishing Boat': { cost: 3, attack: 0, hp: 1, speed: 2, range: 2, notes: '1 fish/turn' }, 'Coast Guard': { cost: 3, attack: 3, hp: 3, speed: 4, range: 2, notes: 'Territorial waters' }, 'FAC': { cost: 6, attack: 6, hp: 1, speed: 5, range: 5, notes: '50% first-strike' }, 'Destroyer': { cost: 13, attack: 6, hp: 8, speed: 4, range: 1e9, notes: 'Unlimited range' } };
+    const SHIP_STATS = { 'Fishing Boat': { cost: 3, attack: 0, hp: 1, speed: 2, range: 4, notes: '1 fish/turn. Cannot attack.' }, 'Coast Guard': { cost: 3, attack: 4, hp: 4, speed: 4, range: 2, atk_label: 'D4', notes: 'Territorial waters' }, 'FAC': { cost: 6, attack: 6, hp: 3, speed: 4, range: 5, atk_label: 'D6', notes: 'D4 in water cannon engagements' }, 'Destroyer': { cost: 13, attack: 8, hp: 9, speed: 3, range: 1e9, atk_label: '2×D4', notes: 'Unlimited range. No base tether.' } };
 
     // Spy card definitions — id, icon, name, description, needs_target type
     const SPY_CARDS = {
-      'upgrade_dice':      { icon: '🎲', name: 'Upgrade Dice',       desc: 'Your next combat roll uses a higher dice tier. Play before combat. GM deletes after use.',          target: 'none' },
-      'extended_move':     { icon: '💨', name: 'Extended Move',      desc: 'One fleet or ship moves up to double its normal speed. Play during Spring.',                        target: 'self_unit' },
-      'steal_gold':        { icon: '💰', name: 'Steal Gold',         desc: 'Steal up to 5g from a target country. Play anytime.',                                               target: 'country_gold' },
-      'destroy_base':      { icon: '💥', name: 'Destroy Base',       desc: 'Destroy a target enemy base. GM resolves. Play anytime.',                                           target: 'enemy_base' },
-      'sink_ship':         { icon: '⚓', name: 'Sink Ship',          desc: 'Eliminate one enemy ship. GM removes it from the board. Play anytime.',                             target: 'enemy_ship' },
-      'disable_unit':      { icon: '🔒', name: 'Disable Unit',       desc: 'Prevent a ship or fleet from moving or attacking for 1 full turn. Play anytime.',                   target: 'enemy_unit' },
-      'toxic_spill':       { icon: '☣️',  name: 'Toxic Spill',        desc: 'Target a fishing zone — no one can fish there next Fall. Play anytime.',                           target: 'fishing_zone' },
-      'bonus_fish':        { icon: '🐟', name: 'Bonus Fish',         desc: 'Add 2 fish to a target fishing zone, raising its stock. Play anytime.',                            target: 'fishing_zone' },
-      'sabotage_base':     { icon: '🔧', name: 'Sabotage Base',      desc: 'Target enemy base cannot spawn new ships for one Winter. GM resolves. Play anytime.',              target: 'enemy_base' },
-      'spy':               { icon: '🕵️',  name: 'Spy',               desc: 'See one country\'s currently held spy cards. GM tells you privately. Play anytime.',               target: 'enemy_country' },
-      'sanction':          { icon: '📜', name: 'Sanction',           desc: 'Target country earns 1 less base income next Fall. Play anytime.',                                  target: 'enemy_country' },
-      'naval_superiority': { icon: '⚔️',  name: 'Naval Superiority', desc: 'Your ships gain +1 attack for one combat this turn. Play before combat.',                          target: 'none' },
-      'nothing':           { icon: '🃏', name: 'Nothing',            desc: 'This card has no effect. Better luck next time.',                                                   target: 'none' },
+      'upgrade_dice': { icon: '🎲', name: 'Upgrade Dice', desc: 'Your next combat roll uses a higher dice tier. Play before combat. GM deletes after use.', target: 'none' },
+      'extended_move': { icon: '💨', name: 'Extended Move', desc: 'One fleet or ship moves up to double its normal speed. Play during Spring.', target: 'self_unit' },
+      'steal_gold': { icon: '💰', name: 'Steal Gold', desc: 'Steal up to 5g from a target country. Play anytime.', target: 'country_gold' },
+      'destroy_base': { icon: '💥', name: 'Destroy Base', desc: 'Destroy a target enemy base. GM resolves. Play anytime.', target: 'enemy_base' },
+      'sink_ship': { icon: '⚓', name: 'Sink Ship', desc: 'Eliminate one enemy ship. GM removes it from the board. Play anytime.', target: 'enemy_ship' },
+      'disable_unit': { icon: '🔒', name: 'Disable Unit', desc: 'Prevent a ship or fleet from moving or attacking for 1 full turn. Play anytime.', target: 'enemy_unit' },
+      'toxic_spill': { icon: '☣️', name: 'Toxic Spill', desc: 'Target a fishing zone — no one can fish there next Fall. Play anytime.', target: 'fishing_zone' },
+      'bonus_fish': { icon: '🐟', name: 'Bonus Fish', desc: 'Add 2 fish to a target fishing zone, raising its stock. Play anytime.', target: 'fishing_zone' },
+      'sabotage_base': { icon: '🔧', name: 'Sabotage Base', desc: 'Target enemy base cannot spawn new ships for one Winter. GM resolves. Play anytime.', target: 'enemy_base' },
+      'spy': { icon: '🕵️', name: 'Spy', desc: 'See one country\'s currently held spy cards. GM tells you privately. Play anytime.', target: 'enemy_country' },
+      'sanction': { icon: '📜', name: 'Sanction', desc: 'Target country earns 1 less base income next Fall. Play anytime.', target: 'enemy_country' },
+      'naval_superiority': { icon: '⚔️', name: 'Naval Superiority', desc: 'Your ships gain +1 attack for one combat this turn. Play before combat.', target: 'none' },
+      'nothing': { icon: '🃏', name: 'Nothing', desc: 'This card has no effect. Better luck next time.', target: 'none' },
     };
 
     /** Picks a random card type from the currently allowed pool */
@@ -2091,18 +2588,18 @@
 
     // Carrying capacity and initial fish per zone (from rulebook)
     const ZONE_FISH_DATA = {
-      'China':               { cap: 7,  initial: 3 },
-      'Taiwan':              { cap: 4,  initial: 2 },
-      'Philippines':         { cap: 6,  initial: 2 },
-      'Malaysia':            { cap: 5,  initial: 2 },
-      'Indonesia':           { cap: 5,  initial: 3 },
-      'Thailand':            { cap: 6,  initial: 3 },
-      'Cambodia':            { cap: 4,  initial: 2 },
-      'Vietnam':             { cap: 6,  initial: 2 },
-      'Green Neutral Zone':  { cap: 15, initial: 6 },
-      'Orange Neutral Zone': { cap: 15, initial: 6 },
-      'Blue Neutral Zone':   { cap: 15, initial: 6 },
-      'Purple Neutral Zone': { cap: 15, initial: 6 },
+      'China': { cap: 16, initial: 4 },
+      'Taiwan': { cap: 6, initial: 2 },
+      'Philippines': { cap: 10, initial: 2 },
+      'Malaysia': { cap: 8, initial: 2 },
+      'Indonesia': { cap: 8, initial: 3 },
+      'Thailand': { cap: 12, initial: 3 },
+      'Cambodia': { cap: 6, initial: 2 },
+      'Vietnam': { cap: 10, initial: 2 },
+      'Green Neutral Zone': { cap: 30, initial: 6 },
+      'Orange Neutral Zone': { cap: 30, initial: 6 },
+      'Blue Neutral Zone': { cap: 30, initial: 6 },
+      'Purple Neutral Zone': { cap: 30, initial: 6 },
     };
 
     /**
@@ -2121,10 +2618,10 @@
     /** Returns health label and color for a stock level */
     function fishHealth(current, cap) {
       const ratio = current / cap;
-      if (ratio >= 0.7) return { label: 'Healthy',   color: '#2ec4b6' };
-      if (ratio >= 0.4) return { label: 'Moderate',  color: '#e9c46a' };
-      if (ratio >= 0.2) return { label: 'Low',       color: '#f4a261' };
-      return                    { label: 'Critical',  color: '#e63946' };
+      if (ratio >= 0.7) return { label: 'Healthy', color: '#2ec4b6' };
+      if (ratio >= 0.4) return { label: 'Moderate', color: '#e9c46a' };
+      if (ratio >= 0.2) return { label: 'Low', color: '#f4a261' };
+      return { label: 'Critical', color: '#e63946' };
     }
     const TILE_DATA = { "1": { "z": "Vietnam", "a": ["2", "5", "6", "7"] }, "2": { "z": "China", "a": ["1", "3", "6", "7", "8"] }, "3": { "z": "China", "a": ["2", "7", "8", "9"] }, "4": { "z": "Thailand", "a": ["5", "12", "13"] }, "5": { "z": "Vietnam", "a": ["1", "4", "6", "13", "14"] }, "6": { "z": "China", "a": ["1", "2", "5", "7", "14", "15"] }, "7": { "z": "China", "a": ["1", "2", "3", "6", "8", "15", "16", "17"] }, "8": { "z": "China", "a": ["2", "3", "7", "9", "17", "18"] }, "9": { "z": "China", "a": ["3", "8", "10", "17", "18"] }, "10": { "z": "China", "a": ["9", "11", "18", "19"] }, "11": { "z": "China", "a": ["10", "19", "20"] }, "12": { "z": "Thailand", "a": ["4", "13", "21", "22"] }, "13": { "z": "Thailand", "a": ["4", "5", "12", "22", "23"] }, "14": { "z": "Vietnam", "a": ["5", "6", "13", "15", "23", "24", "25"] }, "15": { "z": "Blue Neutral Zone", "a": ["6", "7", "14", "16", "24", "25"] }, "16": { "z": "Blue Neutral Zone", "a": ["7", "15", "17", "25", "26", "27"] }, "17": { "z": "Blue Neutral Zone", "a": ["7", "8", "9", "16", "18", "26", "27", "28"] }, "18": { "z": "Purple Neutral Zone", "a": ["8", "9", "10", "17", "19", "28", "29"] }, "19": { "z": "Taiwan", "a": ["10", "11", "18", "20", "29", "30"] }, "20": { "z": "Taiwan", "a": ["11", "19", "30"] }, "21": { "z": "Thailand", "a": ["12", "22", "31", "32"] }, "22": { "z": "Green Neutral Zone", "a": ["12", "13", "21", "23", "32", "33"] }, "23": { "z": "Cambodia", "a": ["13", "14", "22", "24", "33", "34", "35"] }, "24": { "z": "Vietnam", "a": ["14", "15", "23", "25", "34", "35", "36"] }, "25": { "z": "Blue Neutral Zone", "a": ["14", "15", "16", "24", "26", "35", "36", "37"] }, "26": { "z": "Blue Neutral Zone", "a": ["16", "17", "25", "27", "36", "37", "38"] }, "27": { "z": "Blue Neutral Zone", "a": ["16", "17", "26", "28", "37", "38", "39"] }, "28": { "z": "Purple Neutral Zone", "a": ["17", "18", "27", "29", "38", "39", "40"] }, "29": { "z": "Purple Neutral Zone", "a": ["18", "19", "28", "30", "39", "40", "41"] }, "30": { "z": "Taiwan", "a": ["19", "20", "29", "40", "41"] }, "31": { "z": "Thailand", "a": ["21", "32", "42"] }, "32": { "z": "Green Neutral Zone", "a": ["21", "22", "31", "33", "42", "43"] }, "33": { "z": "Cambodia", "a": ["22", "23", "32", "34", "43", "44"] }, "34": { "z": "Cambodia", "a": ["23", "24", "33", "35", "44", "45"] }, "35": { "z": "Vietnam", "a": ["23", "24", "25", "34", "36", "45", "46"] }, "36": { "z": "Blue Neutral Zone", "a": ["24", "25", "26", "35", "37", "45", "46", "47"] }, "37": { "z": "Blue Neutral Zone", "a": ["25", "26", "27", "36", "38", "46", "47", "48"] }, "38": { "z": "Blue Neutral Zone", "a": ["26", "27", "28", "37", "39", "47", "48", "49"] }, "39": { "z": "Purple Neutral Zone", "a": ["27", "28", "29", "38", "40", "48", "49", "50"] }, "40": { "z": "Purple Neutral Zone", "a": ["28", "29", "30", "39", "41", "49", "50", "51"] }, "41": { "z": "Philippines", "a": ["29", "30", "40", "50", "51"] }, "42": { "z": "Thailand", "a": ["31", "32", "43", "52", "53"] }, "43": { "z": "Green Neutral Zone", "a": ["32", "33", "42", "44", "53", "54"] }, "44": { "z": "Green Neutral Zone", "a": ["33", "34", "43", "45", "54", "55"] }, "45": { "z": "Green Neutral Zone", "a": ["34", "35", "36", "44", "46", "54", "55", "56"] }, "46": { "z": "Orange Neutral Zone", "a": ["35", "36", "37", "45", "47", "55", "56", "57"] }, "47": { "z": "Blue Neutral Zone", "a": ["36", "37", "38", "46", "48", "56", "57", "58"] }, "48": { "z": "Purple Neutral Zone", "a": ["37", "38", "39", "47", "49", "57", "58", "59"] }, "49": { "z": "Purple Neutral Zone", "a": ["38", "39", "40", "48", "50", "58", "59", "60"] }, "50": { "z": "Purple Neutral Zone", "a": ["39", "40", "41", "49", "51", "59", "60"] }, "51": { "z": "Philippines", "a": ["40", "41", "50", "60"] }, "52": { "z": "Indonesia", "a": ["42", "53", "61", "62"] }, "53": { "z": "Green Neutral Zone", "a": ["42", "43", "52", "54", "62", "63"] }, "54": { "z": "Green Neutral Zone", "a": ["43", "44", "45", "53", "55", "63", "64"] }, "55": { "z": "Orange Neutral Zone", "a": ["44", "45", "46", "54", "56", "63", "64", "65"] }, "56": { "z": "Orange Neutral Zone", "a": ["45", "46", "47", "55", "57", "64", "65", "66"] }, "57": { "z": "Purple Neutral Zone", "a": ["46", "47", "48", "56", "58", "65", "66", "67"] }, "58": { "z": "Purple Neutral Zone", "a": ["47", "48", "49", "57", "59", "66", "67", "68"] }, "59": { "z": "Purple Neutral Zone", "a": ["48", "49", "50", "58", "60", "67", "68", "69"] }, "60": { "z": "Philippines", "a": ["49", "50", "51", "59", "68", "69"] }, "61": { "z": "Indonesia", "a": ["52", "62", "70"] }, "62": { "z": "Green Neutral Zone", "a": ["52", "53", "61", "63", "70", "71"] }, "63": { "z": "Green Neutral Zone", "a": ["53", "54", "55", "62", "64", "71", "72"] }, "64": { "z": "Orange Neutral Zone", "a": ["54", "55", "56", "63", "65", "71", "72", "73"] }, "65": { "z": "Orange Neutral Zone", "a": ["55", "56", "57", "64", "66", "72", "73", "74"] }, "66": { "z": "Orange Neutral Zone", "a": ["56", "57", "58", "65", "67", "73", "74", "75"] }, "67": { "z": "Purple Neutral Zone", "a": ["57", "58", "59", "66", "68", "74", "75"] }, "68": { "z": "Philippines", "a": ["58", "59", "60", "67", "69", "75"] }, "69": { "z": "Philippines", "a": ["59", "60", "68"] }, "70": { "z": "Indonesia", "a": ["61", "62", "71"] }, "71": { "z": "Indonesia", "a": ["62", "63", "64", "70", "72"] }, "72": { "z": "Orange Neutral Zone", "a": ["63", "64", "65", "66", "71", "73", "76", "77"] }, "73": { "z": "Orange Neutral Zone", "a": ["64", "65", "66", "67", "72", "74", "77", "78"] }, "74": { "z": "Orange Neutral Zone", "a": ["65", "66", "67", "68", "73", "75", "78", "79"] }, "75": { "z": "Orange Neutral Zone", "a": ["66", "67", "68", "74", "79"] }, "76": { "z": "Malaysia", "a": ["72", "77"] }, "77": { "z": "Malaysia", "a": ["72", "73", "76", "78"] }, "78": { "z": "Malaysia", "a": ["73", "74", "77", "79"] }, "79": { "z": "Malaysia", "a": ["74", "75", "78"] } };
     /* ─── DATA ACCESS HELPERS ─────────────────────────────────────── */
@@ -2170,24 +2667,41 @@
      * @param {string} path - The table or resource path (e.g. 'ships?id=eq.1')
      * @param {object} opts - Fetch options (method, body, headers, prefer)
      */
+    // Fetch with automatic timeout + up to 2 retries on network errors
+    async function fetchWithTimeout(url, opts = {}, timeoutMs = 12000, retries = 2) {
+      let lastErr;
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+        try {
+          const res = await fetch(url, { ...opts, signal: ctrl.signal });
+          clearTimeout(timer);
+          return res;
+        } catch (e) {
+          clearTimeout(timer);
+          lastErr = e.name === 'AbortError' ? new Error('Request timed out after ' + (timeoutMs / 1000) + 's') : e;
+          if (attempt < retries) await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+        }
+      }
+      throw lastErr;
+    }
+
     async function sb(path, opts = {}) {
-      const url = SB_URL + '/rest/v1/' + path;
-      const headers = {
-        'apikey': apiKey(),
-        'Authorization': 'Bearer ' + apiKey(),
-        'Content-Type': 'application/json',
-        'Prefer': opts.prefer || 'return=representation',
-        'X-Client-Info': 'scs-sim/1.0',
-        ...(opts.headers || {})
-      };
-      const res = await fetch(url, {
+      const key = apiKey();
+      const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/' + path;
+      const res = await fetchWithTimeout(url, {
         method: opts.method || 'GET',
-        headers,
+        headers: {
+          'apikey': key, 'Authorization': 'Bearer ' + key,
+          'Content-Type': 'application/json',
+          'Prefer': opts.prefer || 'return=representation',
+          'X-Client-Info': 'scs-sim/1.0',
+          ...(opts.headers || {})
+        },
         body: opts.body ? JSON.stringify(opts.body) : undefined,
-        mode: 'cors',
-        credentials: 'omit'
+        mode: 'cors', credentials: 'omit'
       });
-      if (!res.ok) { const e = await res.text(); throw new Error(e); }
+      if (!res.ok) { const e = await res.text(); throw new Error('DB error (' + res.status + '): ' + e.slice(0, 200)); }
       const t = await res.text(); return t ? JSON.parse(t) : null;
     }
 
@@ -2197,8 +2711,10 @@
      * @param {object} payload - Arguments passed to the function
      */
     async function rpc(name, payload) {
-      const res = await fetch(SB_URL.replace(/[^\x20-\x7E]/g, '') + '/rest/v1/rpc/' + name, {
-        headers: { 'apikey': apiKey(), 'Authorization': 'Bearer ' + apiKey(), 'Content-Type': 'application/json' },
+      const key = apiKey();
+      const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/rpc/' + name;
+      const res = await fetchWithTimeout(url, {
+        headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
         method: 'POST', body: JSON.stringify(payload)
       });
       if (!res.ok) { const e = await res.text(); throw new Error(e); }
@@ -2300,10 +2816,15 @@
         document.getElementById('ht').textContent = D.cfg.turn;
         document.getElementById('hid').textContent = CU.role === 'gm' ? 'Game Master' : FLAGS[CU.country] + ' ' + CU.country;
         setSeasonChip(D.cfg.season);
-        hideLoad();
         showScreen(CU.role === 'gm' ? 'gm' : 'player');
         if (CU.role === 'gm') renderGM(); else renderPlayer();
-      } catch (e) { hideLoad(); alert('Load error: ' + e.message); }
+      } catch (e) {
+        const errEl = document.getElementById('lerr');
+        if (errEl) { errEl.textContent = 'Load error: ' + e.message + ' — check connection and try again.'; errEl.classList.remove('hidden'); }
+        showScreen('login');
+      } finally {
+        hideLoad();
+      }
     }
 
     function setSeasonChip(s) {
@@ -2361,7 +2882,10 @@
       D.fishStocks = fsA || [];
     }
 
+    let _refreshing = false;
     async function handleRefresh() {
+      if (_refreshing) return;
+      _refreshing = true;
       showLoad('Refreshing…');
       try {
         const cfgArr = await sb('game_config?select=turn,season');
@@ -2370,8 +2894,16 @@
         document.getElementById('ht').textContent = D.cfg.turn;
         setSeasonChip(D.cfg.season);
         if (CU.role === 'gm') renderGM(); else renderPlayer();
+      } catch (e) {
+        console.error('Refresh error:', e.message);
+        try {
+          const el = document.getElementById('approve-res') || document.getElementById('p-msg');
+          if (el) { el.innerHTML = '<div class="al ae" style="font-size:11px;">Refresh failed: ' + e.message + ' — <button class="btn btn-sm btn-o" onclick="handleRefresh()">Retry</button></div>'; el.classList.remove('hidden'); }
+        } catch (_) { }
+      } finally {
         hideLoad();
-      } catch (e) { hideLoad(); alert('Refresh error: ' + e.message); }
+        _refreshing = false;
+      }
     }
 
     // ─── PLAYER RENDER ───────────────────────────────────────────────
@@ -2630,7 +3162,7 @@
         html += '<div class="al ae" style="font-size:11px;margin-bottom:8px;">☣️ <b>Toxic Spill active:</b> ' + [...toxicZones].join(', ') + ' — fishing blocked this turn.</div>';
       }
       if (Object.keys(bonusZones).length > 0) {
-        html += '<div class="al as" style="font-size:11px;margin-bottom:8px;">🐟 <b>Bonus Fish active:</b> ' + Object.entries(bonusZones).map(([z,v])=>z+' (+'+v+' fish stock)').join(', ') + '</div>';
+        html += '<div class="al as" style="font-size:11px;margin-bottom:8px;">🐟 <b>Bonus Fish active:</b> ' + Object.entries(bonusZones).map(([z, v]) => z + ' (+' + v + ' fish stock)').join(', ') + '</div>';
       }
       ALL_ZONES.forEach(z => {
         const cnt = (byZone[z] || []).length;
@@ -2977,7 +3509,7 @@
             const moveStr = '<b>' + label + '</b> → tile ' + fm.dest + ' (' + dist + ' steps, ' + fm.ship_ids.length + ' ships)';
             if (!isSpringSeason) return moveStr;
             return '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">'
-              + '<input type="checkbox" id="amc-' + safeKey + '" ' + (approved ? 'checked' : '') + ' onchange="gmApproveMove(\'' + (o.id||o.country) + '\',\'fleet::' + fid + '\',\'' + (repShip?.tile||'?') + '\',\'' + fm.dest + '\',\'' + label.replace(/'/g,'') + '\')">'
+              + '<input type="checkbox" id="amc-' + safeKey + '" ' + (approved ? 'checked' : '') + ' onchange="gmApproveMove(\'' + (o.id || o.country) + '\',\'fleet::' + fid + '\',\'' + (repShip?.tile || '?') + '\',\'' + fm.dest + '\',\'' + label.replace(/'/g, '') + '\')">'
               + moveStr + '</label>';
           });
           const sps = Object.entries(p.moves || {}).filter(([id, m]) => !m.fleet).map(([id, m]) => {
@@ -2989,7 +3521,7 @@
             const moveStr = id + ': ' + m.from + '→' + m.to + ' (' + dist + ' steps) ' + (ok ? '<span class="badge bgr">OK</span>' : '<span class="badge bgo">REVIEW</span>');
             if (!isSpringSeason) return moveStr;
             return '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">'
-              + '<input type="checkbox" id="amc-' + safeKey + '" ' + (approved ? 'checked' : '') + ' onchange="gmApproveMove(\'' + (o.id||o.country) + '\',\'' + id + '\',\'' + m.from + '\',\'' + m.to + '\',\'' + id + '\')"> '
+              + '<input type="checkbox" id="amc-' + safeKey + '" ' + (approved ? 'checked' : '') + ' onchange="gmApproveMove(\'' + (o.id || o.country) + '\',\'' + id + '\',\'' + m.from + '\',\'' + m.to + '\',\'' + id + '\')"> '
               + moveStr + '</label>';
           });
           detail = [...fps, ...sps].join('<br>') || 'No moves';
@@ -3092,8 +3624,11 @@
 
     // ─── GM ACTIONS ──────────────────────────────────────────────────
     // Single "Approve & Next Season" button — auto-cycles, turn++ after Summer
+    let _approving = false;
     async function approveTurn() {
-      if (!D.cfg) return;
+      if (_approving) return;
+      _approving = true;
+      if (!D.cfg) { _approving = false; return; }
       const s = D.cfg.season, turn = D.cfg.turn, orders = D.allOrders, log = [];
       const resEl = document.getElementById('approve-res'); showLoad('Processing…');
       try {
@@ -3123,7 +3658,7 @@
           // Log bonus fish zones (informational — GM adjusts zone stock manually or via events)
           Object.entries(bonusZones).forEach(([z, v]) => log.push('🐟 Bonus fish in ' + z + ': +' + v + ' stock (noted)'));
           // Expire fall-season effects (toxic_spill, bonus_fish, sanction all last 1 fall)
-          const fallEffectIds = (D.activeEffects || []).filter(e => ['toxic_spill','bonus_fish','sanction'].includes(e.type)).map(e => e.id);
+          const fallEffectIds = (D.activeEffects || []).filter(e => ['toxic_spill', 'bonus_fish', 'sanction'].includes(e.type)).map(e => e.id);
           for (const id of fallEffectIds) {
             await sb('active_effects?id=eq.' + id, { method: 'DELETE', prefer: 'return=minimal' });
             log.push('Effect #' + id + ' expired.');
@@ -3237,13 +3772,21 @@
         await sb('game_config?id=eq.1', { method: 'PATCH', prefer: 'return=minimal', body: { season: ns, turn: newTurn } });
         D.cfg = { turn: newTurn, season: ns };
 
-        await loadGMData(); hideLoad(); renderGM();
+        try { await loadGMData(); } catch (loadErr) { log.push('⚠ Reload warning: ' + loadErr.message); }
         document.getElementById('ht').textContent = newTurn;
+        renderGM();
 
         const label = s === 'summer' ? 'Moved to Fall — Turn ' + newTurn : 'Moved to ' + (ns.charAt(0).toUpperCase() + ns.slice(1));
         resEl.innerHTML = '<div class="al as" style="font-size:11px;"><b>Done. ' + label + '</b><br>' + log.join('<br>') + '</div>';
-        setTimeout(() => resEl.innerHTML = '', 10000);
-      } catch (e) { hideLoad(); alert('Approve error: ' + e.message); }
+        setTimeout(() => resEl.innerHTML = '', 12000);
+      } catch (e) {
+        console.error('Approve error:', e.message);
+        resEl.innerHTML = '<div class="al ae" style="font-size:11px;"><b>Approve error: ' + e.message + '</b><br>Some steps may have completed. Refresh to check state.<br><button class="btn btn-sm btn-o" style="margin-top:6px;" onclick="handleRefresh()">↻ Refresh Now</button></div>';
+        resEl.classList.remove('hidden');
+      } finally {
+        hideLoad();
+        _approving = false;
+      }
     }
 
     /**
@@ -3259,8 +3802,10 @@
           await sb('economy?country=eq.' + encodeURIComponent(c), { method: 'PATCH', prefer: 'return=minimal', body: { gold: eco.gold + income } });
           await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: c, turn: 1, type: 'income', amount: income, note: '+' + income + 'g (fall base income)' } });
         }
-        D.cfg = { turn: 1, season: 'fall' }; await loadGMData(); hideLoad(); renderGM();
-      } catch (e) { hideLoad(); alert('Error: ' + e.message); }
+        D.cfg = { turn: 1, season: 'fall' };
+        try { await loadGMData(); } catch (_) { }
+        renderGM();
+      } catch (e) { alert('Error: ' + e.message); } finally { hideLoad(); }
     }
 
     /**
@@ -3310,7 +3855,7 @@
         + '<b>' + m.label + '</b>: tile ' + m.from + ' → ' + m.to
         + '</div>'
         + '<span style="font-family:var(--fm);font-size:9px;color:var(--text2);">' + m.approvedAt + '</span>'
-        + '<button class="btn btn-d btn-sm" style="padding:2px 6px;font-size:9px;" onclick="gmApproveMove(\'' + m.orderId + '\',\'' + m.shipId + '\',\'' + m.from + '\',\'' + m.to + '\',\'' + m.label.replace(/'/g,"") + '\')">✕</button>'
+        + '<button class="btn btn-d btn-sm" style="padding:2px 6px;font-size:9px;" onclick="gmApproveMove(\'' + m.orderId + '\',\'' + m.shipId + '\',\'' + m.from + '\',\'' + m.to + '\',\'' + m.label.replace(/'/g, "") + '\')">✕</button>'
         + '</div>'
       ).join('');
     }
@@ -3414,6 +3959,17 @@
         const m = document.getElementById('tile-msg'); showAl(m, rows.length + ' tiles pushed.', 'as'); setTimeout(() => m.classList.add('hidden'), 4000);
       } catch (e) { hideLoad(); alert(e.message); }
     }
+    async function pushZonesToDB() {
+      showLoad('Pushing zone data…');
+      try {
+        // Upsert each zone into fish_zones with correct column schema
+        for (const [zone, d] of Object.entries(ZONE_FISH_DATA)) {
+          await sb('fish_zones?zone=eq.' + encodeURIComponent(zone), { method: 'PATCH', prefer: 'return=minimal', body: { stock: d.initial, capacity: d.cap } });
+        }
+        const m = document.getElementById('zone-msg');
+        showAl(m, '12 zones updated in fish_zones.', 'as'); setTimeout(() => m.classList.add('hidden'), 4000);
+      } catch (e) { alert(e.message); } finally { hideLoad(); }
+    }
     async function gmReset() {
       if (!confirm('RESET ALL GAME DATA?')) return; showLoad('Resetting…');
       try {
@@ -3435,8 +3991,14 @@
         await sb('economy', { method: 'POST', prefer: 'return=minimal', body: initEco });
         await sb('game_config', { method: 'POST', prefer: 'return=minimal', body: { id: 1, turn: 1, season: 'setup' } });
         await sb('spy_card_config', { method: 'POST', prefer: 'return=minimal', body: { id: 1, enabled: false, allowed_types: [] } });
+        // Reset fish_zones to starting values
+        await sb('fish_zones?zone=not.is.null', { method: 'DELETE', prefer: 'return=minimal' }).catch(() => { });
+        const initZones = Object.entries(ZONE_FISH_DATA).map(([zone, d]) => ({ zone, stock: d.initial, capacity: d.cap, last_updated_turn: 1 }));
+        await sb('fish_zones', { method: 'POST', prefer: 'return=minimal', body: initZones }).catch(() => { });
 
-        D.cfg = { turn: 1, season: 'setup' }; await loadGMData(); hideLoad(); renderGM();
+        D.cfg = { turn: 1, season: 'setup' };
+        try { await loadGMData(); } catch (_) { }
+        hideLoad(); renderGM();
       } catch (e) { hideLoad(); alert(e.message); }
     }
 
@@ -3473,23 +4035,23 @@
 
       const getZoneRow = z => (D.fishStocks || []).find(f => f.zone === z);
       const getStock = z => { const r = getZoneRow(z); return r ? r.stock : (ZONE_FISH_DATA[z]?.initial ?? 0); };
-      const getCap   = z => { const r = getZoneRow(z); return r ? r.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15); };
+      const getCap = z => { const r = getZoneRow(z); return r ? r.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15); };
 
       // Build a stable zone ID safe for use in element ids
       const zid = z => 'fz-' + containerId + '-' + z.replace(/[^a-z0-9]/gi, '_');
 
       let html = '';
       ALL_ZONES.forEach(z => {
-        const stock    = getStock(z) + (bonusZones[z] || 0);
-        const cap      = getCap(z);
-        const boats    = boatsByZone[z] || [];
+        const stock = getStock(z) + (bonusZones[z] || 0);
+        const cap = getCap(z);
+        const boats = boatsByZone[z] || [];
         const boatCount = boats.length;
-        const isToxic  = toxicZones.has(z);
+        const isToxic = toxicZones.has(z);
         const hasBonus = !!bonusZones[z];
         const baseHarvest = isToxic ? 0 : boatCount;
-        const health   = fishHealth(stock, cap);
-        const fillPct  = Math.min(100, Math.round(stock / cap * 100));
-        const id       = zid(z);
+        const health = fishHealth(stock, cap);
+        const fillPct = Math.min(100, Math.round(stock / cap * 100));
+        const id = zid(z);
 
         // Default projection at current harvest rate (5 turns)
         const projDefault = [];
@@ -3497,8 +4059,8 @@
         for (let i = 0; i < 5; i++) { cur = projectFish(cur, cap, baseHarvest); projDefault.push(cur); }
 
         const effectBadges =
-          (isToxic  ? '<span class="spy-badge" style="background:rgba(231,111,81,.15);border-color:rgba(231,111,81,.3);color:#e76f51;margin-left:6px;">TOXIC</span>' : '')
-        + (hasBonus ? '<span class="spy-badge" style="background:rgba(46,196,182,.12);border-color:rgba(46,196,182,.3);color:var(--green);margin-left:4px;">+' + bonusZones[z] + ' BONUS</span>' : '');
+          (isToxic ? '<span class="spy-badge" style="background:rgba(231,111,81,.15);border-color:rgba(231,111,81,.3);color:#e76f51;margin-left:6px;">TOXIC</span>' : '')
+          + (hasBonus ? '<span class="spy-badge" style="background:rgba(46,196,182,.12);border-color:rgba(46,196,182,.3);color:var(--green);margin-left:4px;">+' + bonusZones[z] + ' BONUS</span>' : '');
 
         const boatListHtml = boatCount > 0
           ? '<div class="fz-boats">' + boats.map(s => '<span>' + (FLAGS[s.country] || '') + ' ' + s.id + ' (T' + (s.tile || '?') + ')</span>').join(' · ') + '</div>'
@@ -3532,12 +4094,12 @@
           + '<div class="fz-proj">'
           + '<div style="font-family:var(--fm);font-size:10px;color:var(--text2);margin-right:2px;align-self:center;">Actual →</div>'
           + projDefault.map((v, i) => {
-              const ph = fishHealth(v, cap);
-              const prev = i === 0 ? stock : projDefault[i-1];
-              const arrow = v - prev > 0.1 ? '↑' : v - prev < -0.1 ? '↓' : '→';
-              return '<div class="fz-proj-box"><div class="fz-proj-v" style="color:' + ph.color + ';">' + v + '</div>'
-                + '<div class="fz-proj-l">T+' + (i+1) + ' ' + arrow + '</div></div>';
-            }).join('')
+            const ph = fishHealth(v, cap);
+            const prev = i === 0 ? stock : projDefault[i - 1];
+            const arrow = v - prev > 0.1 ? '↑' : v - prev < -0.1 ? '↓' : '→';
+            return '<div class="fz-proj-box"><div class="fz-proj-v" style="color:' + ph.color + ';">' + v + '</div>'
+              + '<div class="fz-proj-l">T+' + (i + 1) + ' ' + arrow + '</div></div>';
+          }).join('')
           + '</div>'
 
           // ── Interactive simulator ──
@@ -3588,7 +4150,7 @@
       const isToxic = (D.activeEffects || []).some(e => e.type === 'toxic_spill' && e.target_zone === zone);
       const row = getZoneRow(zone);
       const stock = (row ? row.stock : (ZONE_FISH_DATA[zone]?.initial ?? 0)) + (bonusZones[zone] || 0);
-      const cap   = row ? row.capacity : (ZONE_FISH_DATA[zone]?.cap ?? 15);
+      const cap = row ? row.capacity : (ZONE_FISH_DATA[zone]?.cap ?? 15);
       const effectiveHarvest = isToxic ? 0 : harvest;
 
       // Project 8 turns
@@ -3703,7 +4265,7 @@
           sb('economy?country=eq.' + encodeURIComponent(to) + '&select=gold'),
         ]);
         const fromGold = fromArr?.[0]?.gold ?? myGold;
-        const toGold   = toArr?.[0]?.gold ?? 0;
+        const toGold = toArr?.[0]?.gold ?? 0;
         if (amt > fromGold) { hideLoad(); showAl(resEl, 'Insufficient gold.', 'ae'); resEl.classList.remove('hidden'); return; }
         await sb('economy?country=eq.' + encodeURIComponent(CU.country), { method: 'PATCH', prefer: 'return=minimal', body: { gold: fromGold - amt } });
         await sb('economy?country=eq.' + encodeURIComponent(to), { method: 'PATCH', prefer: 'return=minimal', body: { gold: toGold + amt } });
@@ -3743,11 +4305,11 @@
         const sel = document.getElementById('fz-edit-zone');
         if (sel) sel.innerHTML = '<option value="">— select —</option>'
           + ALL_ZONES.map(z => {
-              const row = (D.fishStocks || []).find(f => f.zone === z);
-              const s = row ? row.stock : (ZONE_FISH_DATA[z]?.initial ?? '?');
-              const c = row ? row.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
-              return '<option value="' + z + '">' + z + ' (' + s + '/' + c + ')</option>';
-            }).join('');
+            const row = (D.fishStocks || []).find(f => f.zone === z);
+            const s = row ? row.stock : (ZONE_FISH_DATA[z]?.initial ?? '?');
+            const c = row ? row.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
+            return '<option value="' + z + '">' + z + ' (' + s + '/' + c + ')</option>';
+          }).join('');
         showAl(msgEl, zone + ' stock set to ' + val + '.', 'as'); msgEl.classList.remove('hidden');
         setTimeout(() => msgEl.classList.add('hidden'), 3000);
       } catch (e) { hideLoad(); alert('Error: ' + e.message); }
@@ -3797,7 +4359,7 @@
         const def = SPY_CARDS[cardKey] || SPY_CARDS['nothing'];
         await sb('economy?country=eq.' + encodeURIComponent(CU.country), { method: 'PATCH', prefer: 'return=minimal', body: { gold: gold - 6 } });
         await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: CU.country, turn: D.cfg.turn, type: 'card', amount: -6, note: '-6g: spy card (' + cardKey + ')' } });
-        const cardId = CU.country.slice(0,3).toUpperCase() + '-SC-' + Date.now().toString(36).toUpperCase().slice(-5);
+        const cardId = CU.country.slice(0, 3).toUpperCase() + '-SC-' + Date.now().toString(36).toUpperCase().slice(-5);
         await sb('spy_cards', { method: 'POST', prefer: 'return=minimal', body: { id: cardId, country: CU.country, card_type: cardKey, status: 'held', turn_purchased: D.cfg.turn } });
         await loadPlayerData(); hideLoad();
         showAl(document.getElementById('p-card-shop-msg'), def.icon + ' You drew: <b>' + def.name + '</b>! ' + def.desc, 'as');
@@ -3871,8 +4433,8 @@
       // Show/hide target fields based on card type
       const t = def.target || 'none';
       document.getElementById('pc-target-c').value = '';
-      document.getElementById('pc-ship-row').classList.toggle('hidden', !['enemy_ship','enemy_unit','self_unit'].includes(t));
-      document.getElementById('pc-fleet-row').classList.toggle('hidden', !['enemy_unit','self_unit'].includes(t));
+      document.getElementById('pc-ship-row').classList.toggle('hidden', !['enemy_ship', 'enemy_unit', 'self_unit'].includes(t));
+      document.getElementById('pc-fleet-row').classList.toggle('hidden', !['enemy_unit', 'self_unit'].includes(t));
       document.getElementById('pc-base-row').classList.toggle('hidden', !['enemy_base'].includes(t));
       document.getElementById('pc-gold-row').classList.toggle('hidden', t !== 'country_gold');
       document.getElementById('pc-zone-row').classList.toggle('hidden', t !== 'fishing_zone');
@@ -3895,7 +4457,7 @@
       if (!c) return;
       const def = SPY_CARDS[_playCardType] || {};
       const t = def.target || 'none';
-      if (['enemy_ship','enemy_unit'].includes(t)) pcPopulateShips(c);
+      if (['enemy_ship', 'enemy_unit'].includes(t)) pcPopulateShips(c);
       if (['enemy_unit'].includes(t)) pcPopulateFleets(c);
       // enemy_country cards (spy, sanction) need no ship/fleet picker
     }
@@ -3904,7 +4466,7 @@
       // For own ships use local data; for enemies show a text input since ship list is private
       const sel = document.getElementById('pc-target-ship');
       if (country === CU.country) {
-        sel.innerHTML = D.myTroops.map(s => '<option value="' + s.id + '">' + s.id + ' — ' + s.type + ' (tile ' + (s.tile||'?') + ')</option>').join('');
+        sel.innerHTML = D.myTroops.map(s => '<option value="' + s.id + '">' + s.id + ' — ' + s.type + ' (tile ' + (s.tile || '?') + ')</option>').join('');
       } else {
         sel.innerHTML = '<option value="">Type ship ID in the note field below</option>';
       }
@@ -3914,7 +4476,7 @@
     function pcPopulateFleets(country) {
       const sel = document.getElementById('pc-target-fleet');
       if (country === CU.country) {
-        sel.innerHTML = D.myFleets.map(f => '<option value="' + f.id + '">' + f.name + ' (' + (f.ship_ids||[]).length + ' ships)</option>').join('') || '<option value="">No fleets</option>';
+        sel.innerHTML = D.myFleets.map(f => '<option value="' + f.id + '">' + f.name + ' (' + (f.ship_ids || []).length + ' ships)</option>').join('') || '<option value="">No fleets</option>';
       } else {
         sel.innerHTML = '<option value="">Specify in note field</option>';
       }
@@ -3936,13 +4498,13 @@
       const msgEl = document.getElementById('pc-msg');
 
       // Validation
-      if (['enemy_ship','enemy_unit','enemy_base','country_gold','enemy_country'].includes(t) && !targetC) {
+      if (['enemy_ship', 'enemy_unit', 'enemy_base', 'country_gold', 'enemy_country'].includes(t) && !targetC) {
         showAl(msgEl, 'Select a target country.', 'aw'); msgEl.classList.remove('hidden'); return;
       }
       if (t === 'fishing_zone' && !targetZone) {
         showAl(msgEl, 'Select a target fishing zone.', 'aw'); msgEl.classList.remove('hidden'); return;
       }
-      if (['enemy_ship','sink_ship'].includes(_playCardType) && !targetShip && !note) {
+      if (['enemy_ship', 'sink_ship'].includes(_playCardType) && !targetShip && !note) {
         showAl(msgEl, 'Specify a target ship ID in the note.', 'aw'); msgEl.classList.remove('hidden'); return;
       }
 
@@ -4102,7 +4664,7 @@
       }
       // Issue card type dropdown
       const issueT = document.getElementById('issue-t');
-      if (issueT) issueT.innerHTML = Object.entries(SPY_CARDS).map(([k,v]) => '<option value="' + k + '">' + v.icon + ' ' + v.name + '</option>').join('');
+      if (issueT) issueT.innerHTML = Object.entries(SPY_CARDS).map(([k, v]) => '<option value="' + k + '">' + v.icon + ' ' + v.name + '</option>').join('');
       // All cards list
       const listEl = document.getElementById('gm-cards-list');
       if (!listEl) return;
@@ -4111,13 +4673,13 @@
         const def = SPY_CARDS[card.card_type] || { icon: '🃏', name: card.card_type, desc: '' };
         const statusColor = { held: 'spy-badge', played: 'spy-badge" style="background:rgba(244,162,97,.15);border-color:rgba(244,162,97,.3);color:var(--gold)', used: 'spy-badge used' }[card.status] || 'spy-badge';
         const d = card.play_details || {};
-        const detailStr = card.status === 'played' ? [d.target_country && 'Target: '+d.target_country, d.target_ship && 'Ship: '+d.target_ship, d.target_fleet && 'Fleet: '+d.target_fleet, d.target_base_tile && 'Base tile: '+d.target_base_tile, d.gold_amount && 'Gold: '+d.gold_amount, d.note && 'Note: '+d.note].filter(Boolean).join(' · ') : '';
+        const detailStr = card.status === 'played' ? [d.target_country && 'Target: ' + d.target_country, d.target_ship && 'Ship: ' + d.target_ship, d.target_fleet && 'Fleet: ' + d.target_fleet, d.target_base_tile && 'Base tile: ' + d.target_base_tile, d.gold_amount && 'Gold: ' + d.gold_amount, d.note && 'Note: ' + d.note].filter(Boolean).join(' · ') : '';
         return '<div class="spy-card ' + (card.status === 'used' ? 'used' : '') + '">'
           + '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">'
           + '<div style="display:flex;align-items:center;gap:8px;">'
           + '<span style="font-size:20px;">' + def.icon + '</span>'
-          + '<div><div class="spy-card-name">' + (FLAGS[card.country]||'') + ' ' + card.country + ' — ' + def.name + '</div>'
-          + '<div class="spy-card-desc">T' + card.turn_purchased + (card.turn_played ? ' · Played T'+card.turn_played : '') + (detailStr ? '<br>' + detailStr : '') + '</div></div>'
+          + '<div><div class="spy-card-name">' + (FLAGS[card.country] || '') + ' ' + card.country + ' — ' + def.name + '</div>'
+          + '<div class="spy-card-desc">T' + card.turn_purchased + (card.turn_played ? ' · Played T' + card.turn_played : '') + (detailStr ? '<br>' + detailStr : '') + '</div></div>'
           + '</div>'
           + '<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;">'
           + '<span class="' + statusColor + '">' + card.status.toUpperCase() + '</span>'
@@ -4168,7 +4730,7 @@
       if (!c || !t) return;
       showLoad('…');
       try {
-        const cardId = c.slice(0,3).toUpperCase() + '-SC-GM-' + Date.now().toString(36).toUpperCase().slice(-4);
+        const cardId = c.slice(0, 3).toUpperCase() + '-SC-GM-' + Date.now().toString(36).toUpperCase().slice(-4);
         await sb('spy_cards', { method: 'POST', prefer: 'return=minimal', body: { id: cardId, country: c, card_type: t, status: 'held', turn_purchased: D.cfg.turn } });
         await loadGMData(); hideLoad(); renderGMCards();
         showAl(msgEl, 'Issued ' + SPY_CARDS[t]?.name + ' to ' + c + '.', 'as'); msgEl.classList.remove('hidden');
@@ -4187,7 +4749,7 @@
       const d = card.play_details || {};
 
       // These card types are now auto-applied by the game engine when played
-      if (['steal_gold','toxic_spill','bonus_fish','sanction','sabotage_base','sink_ship','destroy_base','disable_unit'].includes(cardType)) {
+      if (['steal_gold', 'toxic_spill', 'bonus_fish', 'sanction', 'sabotage_base', 'sink_ship', 'destroy_base', 'disable_unit'].includes(cardType)) {
         if (!confirm('This card\'s effect was applied automatically when played. Mark it as used in the log?')) return;
         showLoad('…');
         try {
@@ -4199,16 +4761,16 @@
 
       // For all other cards: show confirmation prompt then mark used
       const actionDesc = {
-        'upgrade_dice':       'Upgrade Dice confirmed for ' + ownerCountry + '. Delete this card after the combat roll.',
-        'extended_move':      'Extended Move granted. Manually apply double speed for ' + ownerCountry + ' this Spring.',
-        'sink_ship':          'Sink ship ' + (d.target_ship || d.note || '?') + '? Use the Troops tab to remove it after confirming.',
-        'destroy_base':       'Destroy base at tile ' + (d.target_base_tile || d.note || '?') + '? Use the Bases tab to remove it after confirming.',
-        'sabotage_base':      'Sabotage base at tile ' + (d.target_base_tile || d.note || '?') + ': mark it so it cannot spawn ships next Winter. Note this in the Economy Log.',
-        'disable_unit':       'Disable ship ' + (d.target_ship || '') + ' / fleet ' + (d.target_fleet || '') + '. Use the Troops tab to toggle MOV OFF / ATK OFF.',
-        'toxic_spill':        'Toxic Spill in zone "' + (d.target_zone || '?') + '". Remember to block fishing there next Fall when processing orders.',
-        'bonus_fish':         'Bonus Fish in zone "' + (d.target_zone || '?') + '". Add 2 to the fish stock for that zone in your records.',
-        'spy':                ownerCountry + ' spied on ' + (d.target_country || '?') + '. Tell ' + ownerCountry + ' privately what cards ' + (d.target_country || 'that country') + ' currently holds.',
-        'naval_superiority':  'Naval Superiority for ' + ownerCountry + ': apply +1 attack bonus to all their ships in the next combat this turn.',
+        'upgrade_dice': 'Upgrade Dice confirmed for ' + ownerCountry + '. Delete this card after the combat roll.',
+        'extended_move': 'Extended Move granted. Manually apply double speed for ' + ownerCountry + ' this Spring.',
+        'sink_ship': 'Sink ship ' + (d.target_ship || d.note || '?') + '? Use the Troops tab to remove it after confirming.',
+        'destroy_base': 'Destroy base at tile ' + (d.target_base_tile || d.note || '?') + '? Use the Bases tab to remove it after confirming.',
+        'sabotage_base': 'Sabotage base at tile ' + (d.target_base_tile || d.note || '?') + ': mark it so it cannot spawn ships next Winter. Note this in the Economy Log.',
+        'disable_unit': 'Disable ship ' + (d.target_ship || '') + ' / fleet ' + (d.target_fleet || '') + '. Use the Troops tab to toggle MOV OFF / ATK OFF.',
+        'toxic_spill': 'Toxic Spill in zone "' + (d.target_zone || '?') + '". Remember to block fishing there next Fall when processing orders.',
+        'bonus_fish': 'Bonus Fish in zone "' + (d.target_zone || '?') + '". Add 2 to the fish stock for that zone in your records.',
+        'spy': ownerCountry + ' spied on ' + (d.target_country || '?') + '. Tell ' + ownerCountry + ' privately what cards ' + (d.target_country || 'that country') + ' currently holds.',
+        'naval_superiority': 'Naval Superiority for ' + ownerCountry + ': apply +1 attack bonus to all their ships in the next combat this turn.',
       }[cardType] || 'Resolve this card effect and mark it used?';
 
       if (!confirm(actionDesc + '\n\nMark card as USED?')) return;
@@ -4297,14 +4859,14 @@
       const bc = D.broadcasts || [];
       if (!bc.length) return;
       const existing = document.getElementById('gm-broadcasts');
-      if (existing) { existing.innerHTML = bc.map(b => '<div class="al aw" style="margin-bottom:6px;font-size:12px;"><b>T'+b.turn+' '+b.season+':</b> '+b.message+'</div>').join(''); return; }
+      if (existing) { existing.innerHTML = bc.map(b => '<div class="al aw" style="margin-bottom:6px;font-size:12px;"><b>T' + b.turn + ' ' + b.season + ':</b> ' + b.message + '</div>').join(''); return; }
       // Insert broadcast history section into Events tab if not present
       const evCard = document.querySelector('#gt-events .card:last-child');
       if (evCard) {
         const div = document.createElement('div');
         div.className = 'card'; div.id = 'gm-broadcasts-card';
         div.innerHTML = '<div class="card-title">Recent Broadcasts</div><div id="gm-broadcasts">'
-          + bc.map(b => '<div class="al aw" style="margin-bottom:6px;font-size:12px;"><b>T'+b.turn+' '+b.season+':</b> '+b.message+'</div>').join('') + '</div>';
+          + bc.map(b => '<div class="al aw" style="margin-bottom:6px;font-size:12px;"><b>T' + b.turn + ' ' + b.season + ':</b> ' + b.message + '</div>').join('') + '</div>';
         evCard.parentNode.insertBefore(div, evCard.nextSibling);
       }
     }

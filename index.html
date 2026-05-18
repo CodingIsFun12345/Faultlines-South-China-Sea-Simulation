@@ -1674,6 +1674,8 @@
             Transfer Gold</button>
           <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleRulesPanel()">📖 Rules
             Reference</button>
+          <button class="btn btn-o btn-sm btn-full" style="margin-bottom:6px;" onclick="toggleChangePinPanel()">🔑
+            Change PIN</button>
           <button class="btn btn-o btn-sm btn-full" onclick="handleRefresh()">↻ Refresh</button>
         </div>
       </div>
@@ -1821,6 +1823,37 @@
             <div class="stl">Transfer History (this session)</div>
             <div id="gt-log" class="tm mu" style="font-size:11px;max-height:160px;overflow-y:auto;">No transfers yet.
             </div>
+          </div>
+        </div>
+        <div id="panel-change-pin" class="hidden">
+          <div class="card">
+            <div class="card-title">🔑 Change PIN
+              <button class="btn btn-o btn-sm" onclick="toggleChangePinPanel()">← Back</button>
+            </div>
+            <div class="rn">Enter your current PIN to verify, then set a new one. Your PIN is used to log in each
+              session.</div>
+            <div class="g2 mt8">
+              <div class="fg"><label>Current PIN</label>
+                <div class="pw-wrap">
+                  <input type="password" id="cp-current" placeholder="Current PIN" autocomplete="current-password">
+                  <button class="pw-toggle" onclick="togglePw('cp-current',this)" type="button">👁</button>
+                </div>
+              </div>
+              <div class="fg"><label>New PIN</label>
+                <div class="pw-wrap">
+                  <input type="password" id="cp-new" placeholder="New PIN" autocomplete="new-password">
+                  <button class="pw-toggle" onclick="togglePw('cp-new',this)" type="button">👁</button>
+                </div>
+              </div>
+            </div>
+            <div class="fg"><label>Confirm New PIN</label>
+              <div class="pw-wrap">
+                <input type="password" id="cp-confirm" placeholder="Confirm new PIN" autocomplete="new-password">
+                <button class="pw-toggle" onclick="togglePw('cp-confirm',this)" type="button">👁</button>
+              </div>
+            </div>
+            <button class="btn btn-g mt8" onclick="submitChangePin()">Update PIN</button>
+            <div id="cp-msg" class="hidden mt8"></div>
           </div>
         </div>
         <div id="panel-rules" class="hidden">
@@ -2389,9 +2422,12 @@
               class="btn btn-o btn-sm btn-full no-decor text-center display-block">Open Live Board ↗</a>
           </div>
           <div class="card">
-            <div class="card-title">PIN Management</div>
-            <div id="pin-list" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;"></div>
-            <button class="btn btn-g btn-sm" onclick="savePins()">Save PINs</button>
+            <div class="card-title">PIN Management
+              <button class="btn btn-o btn-sm" onclick="savePins()">Save All</button>
+            </div>
+            <div class="rn" style="margin-bottom:12px;">Each country's current PIN is shown below. Click 👁 to reveal.
+              Use the individual Save buttons to update one at a time, or Save All to commit every field at once.</div>
+            <div id="pin-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
             <div id="pin-msg" class="mt8 hidden"></div>
           </div>
           <div class="card">
@@ -2954,7 +2990,7 @@
       renderSidebar();
       renderBasesSidebar();
       renderBroadcastBanner();
-      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
+      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules', 'change-pin'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
       if (s !== 'setup' && D.myOrders.length > 0) {
         const msgEl = document.getElementById('p-msg');
         msgEl.innerHTML = '<div class="al as"><b>Orders Submitted!</b> Waiting for GM approval. <button class="btn btn-sm btn-o" style="margin-left:10px;vertical-align:middle;padding:3px 8px;font-size:10px;" onclick="cancelMyOrders()">Withdraw Orders</button></div>';
@@ -3618,12 +3654,32 @@
         || '<span class="mu">No entries yet.</span>';
     }
     function rPins() {
-      document.getElementById('pin-list').innerHTML =
-        [['gm', 'GM'], ...COUNTRIES.map(c => [c, FLAGS[c] + ' ' + c])].map(([k, l]) => {
-          const stored = D.pins.find(p => p.country === k);
-          return '<div class="fg" style="margin:0;"><label>' + l + '</label>'
-            + '<input type="text" id="pin-' + k + '" value="' + (stored?.pin_hash || '1234') + '"></div>';
-        }).join('');
+      const rows = [['gm', 'GM'], ...COUNTRIES.map(c => [c, FLAGS[c] + ' ' + c])];
+      const el = document.getElementById('pin-list');
+      el.innerHTML = '';
+      rows.forEach(([k, l]) => {
+        const stored = D.pins.find(p => p.country === k);
+        const val = stored?.pin_hash || '1234';
+        const div = document.createElement('div');
+        div.style.cssText = 'border:1px solid var(--bdr);border-radius:7px;padding:9px 11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;';
+        const inp = document.createElement('input');
+        inp.type = 'password'; inp.id = 'pin-' + k; inp.value = val;
+        inp.placeholder = 'PIN'; inp.style.cssText = 'width:100%;';
+        const eye = document.createElement('button');
+        eye.className = 'pw-toggle'; eye.type = 'button'; eye.textContent = '👁';
+        eye.addEventListener('click', function () { togglePw('pin-' + k, this); });
+        const pwWrap = document.createElement('div');
+        pwWrap.className = 'pw-wrap'; pwWrap.style.cssText = 'flex:1;min-width:120px;margin:0;';
+        pwWrap.appendChild(inp); pwWrap.appendChild(eye);
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn btn-o btn-sm'; saveBtn.textContent = 'Save';
+        saveBtn.addEventListener('click', function () { saveSinglePin(k); });
+        const label = document.createElement('div');
+        label.style.cssText = 'font-family:var(--fh);font-size:12px;font-weight:600;min-width:90px;';
+        label.textContent = l;
+        div.appendChild(label); div.appendChild(pwWrap); div.appendChild(saveBtn);
+        el.appendChild(div);
+      });
     }
     function rSetupTab() {
       const placed = new Set(D.allBases.filter(b => b.turn_started === 0).map(b => b.country));
@@ -3965,7 +4021,19 @@
           if (v) await sb('pins?country=eq.' + encodeURIComponent(k), { method: 'PATCH', prefer: 'return=minimal', body: { pin_hash: v } });
         }
         await loadGMData(); hideLoad(); const m = document.getElementById('pin-msg');
-        showAl(m, 'Saved.', 'as'); setTimeout(() => m.classList.add('hidden'), 2000);
+        showAl(m, 'All PINs saved.', 'as'); setTimeout(() => m.classList.add('hidden'), 2000);
+      } catch (e) { hideLoad(); alert(e.message); }
+    }
+    async function saveSinglePin(country) {
+      const v = document.getElementById('pin-' + country)?.value?.trim();
+      if (!v || v.length < 3) { alert('PIN must be at least 3 characters.'); return; }
+      showLoad('Saving…');
+      try {
+        await sb('pins?country=eq.' + encodeURIComponent(country), { method: 'PATCH', prefer: 'return=minimal', body: { pin_hash: v } });
+        await loadGMData(); hideLoad(); rPins();
+        const m = document.getElementById('pin-msg');
+        showAl(m, (country === 'gm' ? 'GM' : country) + ' PIN updated.', 'as');
+        m.classList.remove('hidden'); setTimeout(() => m.classList.add('hidden'), 2500);
       } catch (e) { hideLoad(); alert(e.message); }
     }
     async function pushTilesToDB() {
@@ -4243,7 +4311,7 @@
       const el = document.getElementById('panel-fish-zones');
       if (!el) return;
       const isHidden = el.classList.contains('hidden');
-      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
+      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules', 'change-pin'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
       if (isHidden) { el.classList.remove('hidden'); renderFishZones('p-fz'); }
       else { restoreSeasonPanel(); }
     }
@@ -4256,7 +4324,7 @@
       const el = document.getElementById('panel-rules');
       if (!el) return;
       const isHidden = el.classList.contains('hidden');
-      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
+      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules', 'change-pin'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
       if (isHidden) { el.classList.remove('hidden'); }
       else { restoreSeasonPanel(); }
     }
@@ -4267,12 +4335,50 @@
       if (btn) btn.classList.add('on');
     }
 
+    function toggleChangePinPanel() {
+      const el = document.getElementById('panel-change-pin');
+      if (!el) return;
+      const isHidden = el.classList.contains('hidden');
+      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules', 'change-pin'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
+      if (isHidden) {
+        el.classList.remove('hidden');
+        // Clear fields on open
+        ['cp-current', 'cp-new', 'cp-confirm'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        document.getElementById('cp-msg')?.classList.add('hidden');
+      } else { restoreSeasonPanel(); }
+    }
+
+    async function submitChangePin() {
+      const current = document.getElementById('cp-current')?.value?.trim();
+      const newPin = document.getElementById('cp-new')?.value?.trim();
+      const confirm = document.getElementById('cp-confirm')?.value?.trim();
+      const msgEl = document.getElementById('cp-msg');
+      if (!current || !newPin || !confirm) { showAl(msgEl, 'Fill in all fields.', 'aw'); msgEl.classList.remove('hidden'); return; }
+      if (newPin !== confirm) { showAl(msgEl, 'New PIN and confirmation do not match.', 'ae'); msgEl.classList.remove('hidden'); return; }
+      if (newPin.length < 3) { showAl(msgEl, 'PIN must be at least 3 characters.', 'aw'); msgEl.classList.remove('hidden'); return; }
+      showLoad('Verifying…');
+      try {
+        // Verify current PIN first
+        const loginCountry = CU.role === 'gm' ? 'gm' : CU.country;
+        const res = await rpc('verify_pin', { p_country: loginCountry, p_pin: current });
+        if (!res?.ok) { hideLoad(); showAl(msgEl, 'Current PIN is incorrect.', 'ae'); msgEl.classList.remove('hidden'); return; }
+        // Update PIN
+        await sb('pins?country=eq.' + encodeURIComponent(loginCountry), { method: 'PATCH', prefer: 'return=minimal', body: { pin_hash: newPin } });
+        SESSION_PIN = newPin;
+        hideLoad();
+        showAl(msgEl, '✅ PIN updated successfully.', 'as');
+        msgEl.classList.remove('hidden');
+        ['cp-current', 'cp-new', 'cp-confirm'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        setTimeout(() => { msgEl.classList.add('hidden'); toggleChangePinPanel(); }, 2000);
+      } catch (e) { hideLoad(); showAl(msgEl, 'Error: ' + e.message, 'ae'); msgEl.classList.remove('hidden'); }
+    }
+
     // ─── GOLD TRANSFER ───────────────────────────────────────────────
     function toggleGoldTransferPanel() {
       const el = document.getElementById('panel-gold-transfer');
       if (!el) return;
       const isHidden = el.classList.contains('hidden');
-      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
+      ['setup', 'fall', 'winter', 'spring', 'summer', 'fish-zones', 'gold-transfer', 'rules', 'change-pin'].forEach(x => document.getElementById('panel-' + x)?.classList.add('hidden'));
       if (!isHidden) { restoreSeasonPanel(); return; }
       el.classList.remove('hidden');
       const sel = document.getElementById('gt-to');

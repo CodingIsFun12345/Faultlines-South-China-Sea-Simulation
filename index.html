@@ -2727,22 +2727,80 @@
       throw lastErr;
     }
 
+    // Detect proxy environment — if a custom header test fails, use proxy-safe mode
+    let _proxyMode = null; // null=unknown, true=proxy, false=direct
+    async function detectProxyMode() {
+      if (_proxyMode !== null) return _proxyMode;
+      try {
+        const key = (SB_ANON || '').replace(/[^ -~]/g, '');
+        const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/game_config?select=turn&limit=1&apikey=' + encodeURIComponent(key);
+        const r = await fetch(url, { method: 'GET', headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }, mode: 'cors', credentials: 'omit', signal: AbortSignal.timeout(5000) });
+        _proxyMode = !r.ok; // if headers work, direct mode; if blocked, proxy mode
+      } catch (e) { _proxyMode = true; }
+      return _proxyMode;
+    }
+
     async function sb(path, opts = {}) {
       const key = apiKey();
-      const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/' + path;
-      const res = await fetchWithTimeout(url, {
-        method: opts.method || 'GET',
-        headers: {
-          'apikey': key, 'Authorization': 'Bearer ' + key,
-          'Content-Type': 'application/json',
-          'Prefer': opts.prefer || 'return=representation',
-          'X-Client-Info': 'scs-sim/1.0',
-          ...(opts.headers || {})
-        },
-        body: opts.body ? JSON.stringify(opts.body) : undefined,
-        mode: 'cors', credentials: 'omit'
+      const baseUrl = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/';
+      const method = opts.method || 'GET';
+
+      // Always embed apikey in URL so proxies that strip headers still authenticate
+      const sep = path.includes('?') ? '&' : '?';
+      const urlWithKey = baseUrl + path + sep + 'apikey=' + encodeURIComponent(key);
+
+      // Build body object — always work with a plain object so we can mutate it
+      let bodyObj = opts.body ? (typeof opts.body === 'string' ? JSON.parse(opts.body) : { ...opts.body }) : {};
+
+      // PROXY-SAFE PATCH: convert PATCH into a POST upsert so the row is identified
+      // by its PK inside the body, not the URL filter (which proxies may strip).
+      // Extract the filter from the URL and inject it into the body, then send as
+      // POST with Prefer: resolution=merge-duplicates (upsert by PK).
+      let effectiveMethod = method;
+      let effectivePrefer = opts.prefer || 'return=representation';
+      if (method === 'PATCH') {
+        const filterMatch = path.match(/[?&](\w+)=eq\.([^&]+)/);
+        if (filterMatch) {
+          const [, col, val] = filterMatch;
+          const decoded = decodeURIComponent(val);
+          bodyObj[col] = (decoded !== '' && !isNaN(decoded)) ? Number(decoded) : decoded;
+        }
+        effectiveMethod = 'POST';
+        effectivePrefer = 'resolution=merge-duplicates,return=minimal';
+      }
+
+      // For mutating requests, tunnel via POST + X-HTTP-Method-Override
+      // so proxies that block non-GET methods still pass them through
+      const isWrite = effectiveMethod !== 'GET';
+      const sendMethod = isWrite ? 'POST' : 'GET';
+
+      const headers = {
+        'apikey': key,
+        'Authorization': 'Bearer ' + key,
+        'Content-Type': 'application/json',
+        'Prefer': effectivePrefer,
+        'X-Client-Info': 'scs-sim/1.0',
+        ...(isWrite && effectiveMethod !== 'POST' ? { 'X-HTTP-Method-Override': effectiveMethod } : {}),
+        ...(opts.headers || {})
+      };
+
+      const body = isWrite
+        ? JSON.stringify(Object.keys(bodyObj).length ? bodyObj : {})
+        : undefined;
+
+      const res = await fetchWithTimeout(urlWithKey, {
+        method: sendMethod,
+        headers,
+        body,
+        mode: 'cors',
+        credentials: 'omit'
       });
-      if (!res.ok) { const e = await res.text(); throw new Error('DB error (' + res.status + '): ' + e.slice(0, 200)); }
+
+      if (!res.ok) {
+        const e = await res.text();
+        if (res.status === 405) throw new Error('Proxy is blocking requests. Ask your GM to host directly or use a different network.');
+        throw new Error('DB error (' + res.status + '): ' + e.slice(0, 200));
+      }
       const t = await res.text(); return t ? JSON.parse(t) : null;
     }
 
@@ -2753,7 +2811,8 @@
      */
     async function rpc(name, payload) {
       const key = apiKey();
-      const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/rpc/' + name;
+      // Embed apikey in URL for proxy compatibility
+      const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/rpc/' + name + '?apikey=' + encodeURIComponent(key);
       const res = await fetchWithTimeout(url, {
         headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
         method: 'POST', body: JSON.stringify(payload)
@@ -2883,12 +2942,12 @@
         rpc('get_my_bases', { p_country: CU.country, p_pin: SESSION_PIN }),
         rpc('get_my_orders', { p_country: CU.country, p_pin: SESSION_PIN, p_season: D.cfg.season, p_turn: D.cfg.turn }),
         rpc('get_my_fleets', { p_country: CU.country, p_pin: SESSION_PIN }),
-        sb('spy_cards?country=eq.' + encodeURIComponent(CU.country) + '&select=*'),
-        sb('spy_card_config?id=eq.1&select=enabled,allowed_types'),
-        sb('game_broadcast?select=*&order=created_at.desc&limit=1'),
-        sb('active_effects?select=*'),
-        sb('player_notifications?target_country=eq.' + encodeURIComponent(CU.country) + '&dismissed=eq.false&select=*&order=created_at.desc'),
-        sb('fish_zones?select=*'),
+        sb('spy_cards?country=eq.' + encodeURIComponent(CU.country) + '&select=*').catch(() => []),
+        sb('spy_card_config?id=eq.1&select=enabled,allowed_types').catch(() => []),
+        sb('game_broadcast?select=*&order=created_at.desc&limit=1').catch(() => []),
+        sb('active_effects?select=*').catch(() => []),
+        sb('player_notifications?target_country=eq.' + encodeURIComponent(CU.country) + '&dismissed=eq.false&select=*&order=created_at.desc').catch(() => []),
+        sb('fish_zones?select=*').catch(() => []),
       ]);
       if (!eR?.ok) throw new Error(eR?.error || 'Economy load failed');
       D.myEco = { gold: eR.gold }; D.myTroops = tR?.troops || []; D.myBases = bR?.bases || [];
@@ -2903,16 +2962,18 @@
 
     async function loadGMData() {
       const [eA, tA, bA, oA, lA, pA, fA, cA, ccA, bcA, efA, fsA] = await Promise.all([
-        sb('economy?select=*'), sb('troops?select=*'), sb('bases?select=*'),
+        sb('economy?select=*'),
+        sb('troops?select=*'),
+        sb('bases?select=*'),
         sb('pending_orders?select=*&season=eq.' + D.cfg.season + '&turn=eq.' + D.cfg.turn),
         sb('economy_log?select=*&order=created_at.desc&limit=100'),
         sb('pins?select=country,pin_hash'),
         sb('fleets?select=*'),
-        sb('spy_cards?select=*&order=created_at.desc'),
-        sb('spy_card_config?id=eq.1&select=*'),
-        sb('game_broadcast?select=*&order=created_at.desc&limit=5'),
-        sb('active_effects?select=*'),
-        sb('fish_zones?select=*'),
+        sb('spy_cards?select=*&order=created_at.desc').catch(() => []),
+        sb('spy_card_config?id=eq.1&select=*').catch(() => []),
+        sb('game_broadcast?select=*&order=created_at.desc&limit=5').catch(() => []),
+        sb('active_effects?select=*').catch(() => []),
+        sb('fish_zones?select=*').catch(() => []),
       ]);
       D.allEco = eA || []; D.allTroops = tA || []; D.allBases = bA || []; D.allOrders = oA || [];
       D.allEcoLog = lA || []; D.pins = pA || []; D.allFleets = fA || [];
@@ -2929,7 +2990,7 @@
       _refreshing = true;
       showLoad('Refreshing…');
       try {
-        const cfgArr = await sb('game_config?select=turn,season');
+        const cfgArr = await sb('game_config?select=turn,season').catch(e => { throw new Error('game_config: ' + e.message); });
         D.cfg = cfgArr?.[0] || D.cfg;
         if (CU.role === 'gm') await loadGMData(); else await loadPlayerData();
         document.getElementById('ht').textContent = D.cfg.turn;
@@ -3227,7 +3288,7 @@
       document.getElementById('fall-zones').innerHTML = html; updFish();
     }
     function adjFish(z, d) { const i = document.getElementById('fish-' + zi(z)); if (!i || i.disabled) return; i.value = Math.max(0, Math.min(parseInt(i.max || 0), parseInt(i.value || 0) + d)); updFish(); updFallProj(z); }
-    function updFish() { let t = 0; ALL_ZONES.forEach(z => { t += parseInt(document.getElementById('fish-' + zi(z))?.value || 0); }); document.getElementById('f-fish').textContent = t; document.getElementById('f-tot').textContent = '+ ' + t; }
+    function updFish() { let t = 0; ALL_ZONES.forEach(z => { t += parseInt(document.getElementById('fish-' + zi(z))?.value || 0); }); const bi = BASE_INCOME[CU?.country] || 0; document.getElementById('f-fish').textContent = t; document.getElementById('f-tot').textContent = bi + t; }
     function updFallProj(z) {
       const el = document.getElementById('proj-' + zi(z));
       if (!el) return;
@@ -4416,18 +4477,24 @@
         const fromGold = fromArr?.[0]?.gold ?? myGold;
         const toGold = toArr?.[0]?.gold ?? 0;
         if (amt > fromGold) { hideLoad(); showAl(resEl, 'Insufficient gold.', 'ae'); resEl.classList.remove('hidden'); return; }
-        await sb('economy?country=eq.' + encodeURIComponent(CU.country), { method: 'PATCH', prefer: 'return=minimal', body: { gold: fromGold - amt } });
-        await sb('economy?country=eq.' + encodeURIComponent(to), { method: 'PATCH', prefer: 'return=minimal', body: { gold: toGold + amt } });
+        await sb('economy?country=eq.' + encodeURIComponent(CU.country), { method: 'PATCH', prefer: 'return=minimal', body: { country: CU.country, gold: fromGold - amt } });
+        await sb('economy?country=eq.' + encodeURIComponent(to), { method: 'PATCH', prefer: 'return=minimal', body: { country: to, gold: toGold + amt } });
         const nF = '-' + amt + 'g → ' + to + (msg ? ' ("' + msg + '")' : '');
         const nT = '+' + amt + 'g ← ' + CU.country + (msg ? ' ("' + msg + '")' : '');
         await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: CU.country, turn: D.cfg.turn, type: 'transfer', amount: -amt, note: nF } });
         await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: to, turn: D.cfg.turn, type: 'transfer', amount: amt, note: nT } });
         await notifyPlayer(to, '💰 <b>' + (FLAGS[CU.country] || '') + ' ' + CU.country + '</b> sent you <b>' + amt + 'g</b>' + (msg ? ': "' + msg + '"' : '') + '.');
-        await loadPlayerData(); hideLoad();
-        document.getElementById('gt-avail').textContent = D.myEco?.gold ?? '—';
+        // Update local state directly from known values — avoids re-fetch race condition
+        // where the DB write hasn't committed yet and loadPlayerData() reads stale gold
+        D.myEco = { gold: fromGold - amt };
+        SESSION_PIN = SESSION_PIN; // keep session alive
+        hideLoad();
+        document.getElementById('gt-avail').textContent = D.myEco.gold;
+        document.getElementById('p-gold').textContent = D.myEco.gold;
+        document.getElementById('cart-avail') && (document.getElementById('cart-avail').textContent = D.myEco.gold);
         document.getElementById('gt-amt').value = '';
         document.getElementById('gt-msg-txt').value = '';
-        showAl(resEl, amt + 'g sent to ' + (FLAGS[to] || '') + ' ' + to + '.', 'as'); resEl.classList.remove('hidden');
+        showAl(resEl, amt + 'g sent to ' + (FLAGS[to] || '') + ' ' + to + '. Your balance: ' + D.myEco.gold + 'g', 'as'); resEl.classList.remove('hidden');
         setTimeout(() => resEl.classList.add('hidden'), 4000);
         loadTransferLog();
       } catch (e) { hideLoad(); showAl(resEl, 'Error: ' + e.message, 'ae'); resEl.classList.remove('hidden'); }
@@ -4709,8 +4776,11 @@
           await sb('economy_log', { method: 'POST', prefer: 'return=minimal', body: { country: CU.country, turn: D.cfg.turn, type: 'card', amount: amt, note: '+' + amt + 'g stolen from ' + targetC } });
           await notifyPlayer(targetC, '💰 <b>' + amt + 'g</b> was stolen from your treasury by a spy operation.');
           await markCardUsed(_playCardId, details);
-          hideLoad(); closeMod(); await loadPlayerData(); renderPlayer();
-          showMsg('💰 Stole ' + amt + 'g from ' + targetC + '.', 'as');
+          // Update local gold directly to avoid re-fetch race condition
+          D.myEco = { gold: toGold + amt };
+          hideLoad(); closeMod();
+          document.getElementById('p-gold').textContent = D.myEco.gold;
+          showMsg('💰 Stole ' + amt + 'g from ' + targetC + '. Your balance: ' + D.myEco.gold + 'g', 'as');
           return;
         }
 

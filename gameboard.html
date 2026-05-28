@@ -592,29 +592,68 @@
 
     let bData = { troops: [], bases: [], fleets: [], fishZones: [], config: { turn: 1, season: 'setup' } };
 
-    async function sbGet(path) {
-      const r = await fetch(SB_URL + '/rest/v1/' + path, {
-        headers: { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'X-Client-Info': 'scs-sim/1.0' },
-        mode: 'cors', credentials: 'omit'
-      });
-      const t = await r.text(); return t ? JSON.parse(t) : [];
+    /**
+     * Proxy-safe GET helper for the gameboard (read-only).
+     *
+     * Fixes vs the original sbGet():
+     *  1. apikey embedded in URL — works even if Authorization header is stripped by proxy
+     *  2. AbortController timeout — prevents hung requests from blocking the 30-second refresh
+     *  3. HTTP status checked — proxy intercept pages (200 HTML) no longer parse as valid data
+     *  4. Retry with backoff — transient proxy hiccups recover automatically (up to 2 retries)
+     */
+    async function sbGet(path, retries = 2) {
+      const key = SB_ANON.replace(/[^ -~]/g, '');
+      const base = SB_URL.replace(/[^ -~]/g, '');
+      const sep = path.includes('?') ? '&' : '?';
+      const url = base + '/rest/v1/' + path + sep + 'apikey=' + encodeURIComponent(key);
+      let lastErr;
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 12000);
+        try {
+          const r = await fetch(url, {
+            method: 'GET',
+            headers: { 'apikey': key, 'Authorization': 'Bearer ' + key },
+            mode: 'cors', credentials: 'omit',
+            signal: ctrl.signal
+          });
+          clearTimeout(timer);
+          if (!r.ok) {
+            const e = await r.text();
+            throw new Error('DB error (' + r.status + '): ' + e.slice(0, 200));
+          }
+          const t = await r.text();
+          return t ? JSON.parse(t) : [];
+        } catch (e) {
+          clearTimeout(timer);
+          lastErr = e.name === 'AbortError' ? new Error('Request timed out') : e;
+          if (e.message.startsWith('DB error')) throw e; // real DB error, don't retry
+          if (attempt < retries) await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        }
+      }
+      throw lastErr;
     }
 
     async function loadBoard() {
       document.getElementById('b-st').innerHTML = '<span class="spin"></span>';
       try {
+        // config and troops are critical — failure surfaces an error.
+        // bases, fleets, fish_zones are non-critical — failure shows stale data silently.
         const [cfg, tr, bs, fl, fz] = await Promise.all([
           sbGet('game_config?select=turn,season'),
           sbGet('troops?select=id,country,type,tile,hp,max_hp,disabled'),
-          sbGet('bases?select=id,country,tile,status,anchor_ship'),
-          sbGet('fleets?select=id,country,name,ship_ids'),
-          sbGet('fish_zones?select=*'),
+          sbGet('bases?select=id,country,tile,status,anchor_ship').catch(() => bData.bases || []),
+          sbGet('fleets?select=id,country,name,ship_ids').catch(() => bData.fleets || []),
+          sbGet('fish_zones?select=*').catch(() => bData.fishZones || []),
         ]);
         bData = { config: cfg?.[0] || { turn: 1, season: 'setup' }, troops: tr || [], bases: bs || [], fleets: fl || [], fishZones: fz || [] };
         renderBoard();
         document.getElementById('b-st').textContent = '';
         document.getElementById('last-updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
-      } catch (e) { document.getElementById('b-st').textContent = '⚠ ' + e.message; }
+      } catch (e) {
+        document.getElementById('b-st').textContent = '⚠ ' + e.message;
+        document.getElementById('last-updated').textContent = 'Failed: ' + new Date().toLocaleTimeString();
+      }
     }
 
     function renderBoard() {

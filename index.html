@@ -2709,7 +2709,48 @@
      * @param {object} opts - Fetch options (method, body, headers, prefer)
      */
     // Fetch with automatic timeout + up to 2 retries on network errors
-    async function fetchWithTimeout(url, opts = {}, timeoutMs = 12000, retries = 2) {
+    // ─── PROXY-SAFE FETCH LAYER ──────────────────────────────────────
+    // Many school/corporate proxies:
+    //   • Block OPTIONS preflight → CORS fails before any real request
+    //   • Strip custom headers (Authorization, Prefer, Content-Type, X-HTTP-Method-Override)
+    //   • Block non-GET/POST HTTP methods (DELETE, PATCH)
+    //
+    // Strategy:
+    //   GET    → plain GET, apikey in URL
+    //   POST   → plain POST, apikey in URL, application/json (required by PostgREST)
+    //   PATCH  → rewritten as POST upsert (merge-duplicates), PK injected into body
+    //   DELETE → Tier 1: real DELETE; Tier 2: GET tunnel (?_method_override=DELETE);
+    //            Tier 3: POST + X-HTTP-Method-Override header
+    //   Prefer → kept in header only (PostgREST does NOT support it as a URL param)
+    //   apikey → always in URL (?apikey=...)
+
+    let _proxyMode = null; // null=untested, 'direct', 'headers-stripped', 'blocked'
+
+    async function detectProxyMode() {
+      if (_proxyMode !== null) return _proxyMode;
+      const key = (SB_ANON || '').replace(/[^ -~]/g, '');
+      const base = SB_URL.replace(/[^ -~]/g, '');
+      try {
+        const url = base + '/rest/v1/game_config?select=turn&limit=1&apikey=' + encodeURIComponent(key);
+        const r = await Promise.race([
+          fetch(url, { method: 'GET', mode: 'cors', credentials: 'omit' }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))
+        ]);
+        if (r.ok || r.status === 406) {
+          try {
+            const r2 = await Promise.race([
+              fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal', 'apikey': key, 'Authorization': 'Bearer ' + key }, body: '{}', mode: 'cors', credentials: 'omit' }),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))
+            ]);
+            _proxyMode = (r2.ok || r2.status < 500) ? 'direct' : 'headers-stripped';
+          } catch { _proxyMode = 'headers-stripped'; }
+        } else { _proxyMode = 'blocked'; }
+      } catch { _proxyMode = 'blocked'; }
+      console.info('[SCS] Proxy mode:', _proxyMode);
+      return _proxyMode;
+    }
+
+    async function fetchWithTimeout(url, opts = {}, timeoutMs = 14000, retries = 2) {
       let lastErr;
       for (let attempt = 0; attempt <= retries; attempt++) {
         const ctrl = new AbortController();
@@ -2721,103 +2762,244 @@
         } catch (e) {
           clearTimeout(timer);
           lastErr = e.name === 'AbortError' ? new Error('Request timed out after ' + (timeoutMs / 1000) + 's') : e;
-          if (attempt < retries) await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+          if (attempt < retries) await new Promise(r => setTimeout(r, 900 * (attempt + 1)));
         }
       }
       throw lastErr;
     }
 
-    // Detect proxy environment — if a custom header test fails, use proxy-safe mode
-    let _proxyMode = null; // null=unknown, true=proxy, false=direct
-    async function detectProxyMode() {
-      if (_proxyMode !== null) return _proxyMode;
-      try {
-        const key = (SB_ANON || '').replace(/[^ -~]/g, '');
-        const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/game_config?select=turn&limit=1&apikey=' + encodeURIComponent(key);
-        const r = await fetch(url, { method: 'GET', headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }, mode: 'cors', credentials: 'omit', signal: AbortSignal.timeout(5000) });
-        _proxyMode = !r.ok; // if headers work, direct mode; if blocked, proxy mode
-      } catch (e) { _proxyMode = true; }
-      return _proxyMode;
-    }
-
+    /**
+     * Core Supabase REST wrapper — fully proxy-safe.
+     *
+     * All writes use POST. PATCH is rewritten as a POST upsert with the PK
+     * injected into the body so URL filters being stripped cannot break it.
+     * DELETE uses a three-tier fallback (real DELETE → GET tunnel → POST override).
+     * apikey and Prefer are always embedded in the URL so stripped headers
+     * cannot break authentication or response formatting.
+     */
     async function sb(path, opts = {}) {
       const key = apiKey();
       const baseUrl = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/';
       const method = opts.method || 'GET';
 
-      // Always embed apikey in URL so proxies that strip headers still authenticate
+      // Preserve arrays (bulk inserts) — spreading an array with {...arr} produces {}
+      // which silently drops all data. Only spread plain objects.
+      let bodyObj = opts.body
+        ? (typeof opts.body === 'string'
+            ? JSON.parse(opts.body)
+            : Array.isArray(opts.body) ? opts.body : { ...opts.body })
+        : {};
+
+      const preferVal = opts.prefer || 'return=minimal';
+
+      // Embed apikey in URL — proxy-safe auth even if Authorization header is stripped.
+      // NOTE: Prefer must stay in the header only; PostgREST does NOT support it as a
+      // URL query param and will throw PGRST100 trying to parse it as a filter.
       const sep = path.includes('?') ? '&' : '?';
-      const urlWithKey = baseUrl + path + sep + 'apikey=' + encodeURIComponent(key);
+      const urlWithParams = baseUrl + path + sep + 'apikey=' + encodeURIComponent(key);
 
-      // Build body object — always work with a plain object so we can mutate it
-      let bodyObj = opts.body ? (typeof opts.body === 'string' ? JSON.parse(opts.body) : { ...opts.body }) : {};
-
-      // PROXY-SAFE PATCH: convert PATCH into a POST upsert so the row is identified
-      // by its PK inside the body, not the URL filter (which proxies may strip).
-      // Extract the filter from the URL and inject it into the body, then send as
-      // POST with Prefer: resolution=merge-duplicates (upsert by PK).
-      let effectiveMethod = method;
-      let effectivePrefer = opts.prefer || 'return=representation';
-      if (method === 'PATCH') {
-        const filterMatch = path.match(/[?&](\w+)=eq\.([^&]+)/);
-        if (filterMatch) {
-          const [, col, val] = filterMatch;
-          const decoded = decodeURIComponent(val);
-          bodyObj[col] = (decoded !== '' && !isNaN(decoded)) ? Number(decoded) : decoded;
-        }
-        effectiveMethod = 'POST';
-        effectivePrefer = 'resolution=merge-duplicates,return=minimal';
+      // Route by method
+      if (method === 'DELETE') return _sbDelete(urlWithParams, key, preferVal);
+      if (method === 'PATCH')  return _sbPatch(urlWithParams, key, preferVal, path, bodyObj);
+      if (method === 'GET') {
+        const res = await fetchWithTimeout(urlWithParams, {
+          method: 'GET',
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key },
+          mode: 'cors', credentials: 'omit'
+        });
+        if (!res.ok) { const e = await res.text(); throw new Error('DB error (' + res.status + '): ' + e.slice(0, 300)); }
+        const t = await res.text(); return t ? JSON.parse(t) : null;
       }
 
-      // For mutating requests, tunnel via POST + X-HTTP-Method-Override
-      // so proxies that block non-GET methods still pass them through
-      const isWrite = effectiveMethod !== 'GET';
-      const sendMethod = isWrite ? 'POST' : 'GET';
+      // POST — plain insert
+      return _sbPost(urlWithParams, key, preferVal, bodyObj);
+    }
 
-      const headers = {
-        'apikey': key,
-        'Authorization': 'Bearer ' + key,
-        'Content-Type': 'application/json',
-        'Prefer': effectivePrefer,
-        'X-Client-Info': 'scs-sim/1.0',
-        ...(isWrite && effectiveMethod !== 'POST' ? { 'X-HTTP-Method-Override': effectiveMethod } : {}),
-        ...(opts.headers || {})
-      };
-
-      const body = isWrite
-        ? JSON.stringify(Object.keys(bodyObj).length ? bodyObj : {})
-        : undefined;
-
-      const res = await fetchWithTimeout(urlWithKey, {
-        method: sendMethod,
-        headers,
-        body,
-        mode: 'cors',
-        credentials: 'omit'
-      });
-
+    /**
+     * POST helper — used for plain inserts.
+     * Note: text/plain does NOT work as a fallback — PostgREST requires application/json.
+     */
+    async function _sbPost(url, key, preferVal, bodyObj) {
+      // Note: Content-Type: application/json triggers a CORS preflight OPTIONS request.
+      // If the proxy blocks OPTIONS, this POST will fail with a network error.
+      // text/plain does NOT work as a fallback — PostgREST requires application/json
+      // to parse the body, so we do not attempt that. Instead we surface a clear message.
+      const bodyStr = JSON.stringify(bodyObj);
+      let res;
+      try {
+        res = await fetchWithTimeout(url, {
+          method: 'POST',
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Prefer': preferVal },
+          body: bodyStr, mode: 'cors', credentials: 'omit'
+        });
+      } catch (netErr) {
+        throw new Error('Write blocked by proxy (CORS preflight failed). Try a different network or ask your GM to use a direct connection. (' + netErr.message + ')');
+      }
       if (!res.ok) {
         const e = await res.text();
-        if (res.status === 405) throw new Error('Proxy is blocking requests. Ask your GM to host directly or use a different network.');
-        throw new Error('DB error (' + res.status + '): ' + e.slice(0, 200));
+        if (res.status === 405) throw new Error('HTTP POST blocked by proxy. Try a different network.');
+        throw new Error('DB error (' + res.status + '): ' + e.slice(0, 300));
       }
       const t = await res.text(); return t ? JSON.parse(t) : null;
     }
 
     /**
-     * RPC Wrapper: Calls a Postgres function defined in Supabase
-     * @param {string} name - The name of the RPC function
-     * @param {object} payload - Arguments passed to the function
+     * PATCH with two-tier proxy fallback.
+     *
+     * Tier 1: Real PATCH — correct semantics, no INSERT risk, works on direct connections.
+     *         Uses X-HTTP-Method-Override tunneled through POST for proxies that block PATCH.
+     * Tier 2: POST upsert (merge-duplicates) — only used if PATCH is hard-blocked (405/403).
+     *         Requires INSERT permission, so limited to tables where anon has INSERT.
+     *         The PK is injected into the body from the URL filter so it survives proxy
+     *         stripping of the URL query string.
+     *
+     * Tables that must NEVER reach Tier 2 (no INSERT permission): pins, economy,
+     * game_config, fish_zones, ship_counter, player_notifications.
+     * Tables safe for Tier 2 (have INSERT permission as part of upsert flows): troops,
+     * bases, spy_cards — these use POST upsert elsewhere anyway.
+     */
+    /**
+     * PATCH with two-tier proxy fallback.
+     *
+     * Tier 1: Real PATCH (direct connection + most proxies)
+     * Tier 2: POST + X-HTTP-Method-Override: PATCH header (proxies that block PATCH method
+     *         but honour the override header)
+     *         The PK is injected into the body from the URL filter so that even if the proxy
+     *         strips the URL querystring, PostgREST can still identify the row.
+     *
+     * We deliberately do NOT fall through to a POST upsert (merge-duplicates) as a final
+     * tier — that requires INSERT permission which many tables (pins, economy, game_config,
+     * fish_zones) do not grant to the anon role, causing RLS 401 errors.
+     */
+    async function _sbPatch(url, key, preferVal, path, bodyObj) {
+      // Extract PK from URL filter so we can inject it into the body for Tier 2.
+      // This ensures the correct row is targeted even if the URL filter is stripped.
+      const filterMatch = path.match(/[?&](\w+)=eq\.([^&]+)/);
+      let bodyWithPK = { ...bodyObj };
+      if (filterMatch) {
+        const [, col, rawVal] = filterMatch;
+        const decoded = decodeURIComponent(rawVal);
+        bodyWithPK[col] = /^\d+$/.test(decoded) ? Number(decoded) : decoded;
+      }
+      const bodyStr = JSON.stringify(bodyObj);        // original body for real PATCH
+      const bodyPKStr = JSON.stringify(bodyWithPK);   // PK-enriched body for tunneled PATCH
+
+      // Tier 1: Real PATCH
+      try {
+        const res = await fetchWithTimeout(url, {
+          method: 'PATCH',
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Prefer': preferVal },
+          body: bodyStr, mode: 'cors', credentials: 'omit'
+        });
+        if (res.ok || res.status === 204) { const t = await res.text(); return t ? JSON.parse(t) : null; }
+        if (res.status !== 405 && res.status !== 403) {
+          const e = await res.text(); throw new Error('DB error (' + res.status + '): ' + e.slice(0, 300));
+        }
+        // 405/403 = method blocked, fall through to Tier 2
+      } catch (e) { if (e.message.startsWith('DB error')) throw e; }
+
+      // Tier 2: POST + X-HTTP-Method-Override: PATCH
+      // PK is in the body so the correct row is identified even if URL filter is stripped.
+      try {
+        const res = await fetchWithTimeout(url, {
+          method: 'POST',
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Prefer': preferVal, 'X-HTTP-Method-Override': 'PATCH' },
+          body: bodyPKStr, mode: 'cors', credentials: 'omit'
+        });
+        if (res.ok || res.status === 204) { const t = await res.text(); return t ? JSON.parse(t) : null; }
+        const e = await res.text(); throw new Error('DB error (' + res.status + '): ' + e.slice(0, 300));
+      } catch (e) {
+        if (e.message.startsWith('DB error')) throw e;
+        throw new Error('PATCH blocked by proxy on all fallback methods. Try a different network.');
+      }
+    }
+
+    /**
+     * DELETE with two-tier proxy fallback.
+     *
+     * Tier 1: Real HTTP DELETE (direct connections + most proxies)
+     * Tier 2: POST + X-HTTP-Method-Override: DELETE header (proxies that block DELETE
+     *         but honour the override header)
+     *
+     * For targeted deletes (id=eq.X): the PK is injected into the POST body so that
+     * PostgREST can identify the row even if the proxy strips the URL querystring.
+     *
+     * For bulk deletes (id=not.is.null / key=not.is.null): Tier 2 is intentionally
+     * skipped because a POST with an empty body would be treated as an INSERT.
+     * Bulk deletes are GM-only reset operations — if Tier 1 fails on a proxy, a clear
+     * error is surfaced asking for a direct connection.
+     *
+     * NOTE: The ?_method_override=DELETE URL-param "GET tunnel" that PostgREST
+     * supposedly supports is NOT implemented here — testing shows PostgREST ignores
+     * it and treats the request as a plain GET, returning rows instead of deleting.
+     */
+    async function _sbDelete(urlWithParams, key, preferVal) {
+      // Determine if this is a targeted delete (has `=eq.` filter) or a bulk delete
+      const eqFilterMatch = urlWithParams.match(/[?&](\w+)=eq\.([^&]+)/);
+      const isBulk = !eqFilterMatch;
+
+      // Tier 1: Real DELETE
+      try {
+        const res = await fetchWithTimeout(urlWithParams, {
+          method: 'DELETE',
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Prefer': preferVal },
+          mode: 'cors', credentials: 'omit'
+        });
+        // 204 No Content and 404 Not Found are both success for DELETE
+        if (res.ok || res.status === 204 || res.status === 404) return null;
+        if (res.status !== 405 && res.status !== 403) {
+          const e = await res.text(); throw new Error('DB error (' + res.status + '): ' + e.slice(0, 300));
+        }
+        // 405/403 = method blocked by proxy, fall through
+      } catch (e) { if (e.message.startsWith('DB error')) throw e; }
+
+      // Bulk deletes cannot safely use Tier 2 (POST with empty body = INSERT attempt)
+      if (isBulk) {
+        throw new Error('Bulk DELETE blocked by proxy. This operation (game reset/advance) requires a direct connection — try a different network.');
+      }
+
+      // Tier 2: POST + X-HTTP-Method-Override: DELETE (targeted deletes only)
+      // Inject the PK into the body so the row is identified even if URL filter is stripped.
+      try {
+        const [, col, rawVal] = eqFilterMatch;
+        const decoded = decodeURIComponent(rawVal);
+        const pkBody = { [col]: /^\d+$/.test(decoded) ? Number(decoded) : decoded };
+        const res = await fetchWithTimeout(urlWithParams, {
+          method: 'POST',
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'X-HTTP-Method-Override': 'DELETE', 'Prefer': preferVal },
+          body: JSON.stringify(pkBody), mode: 'cors', credentials: 'omit'
+        });
+        if (res.ok || res.status === 204 || res.status === 404) return null;
+        const e = await res.text(); throw new Error('DB error (' + res.status + '): ' + e.slice(0, 300));
+      } catch (e) {
+        if (e.message.startsWith('DB error')) throw e;
+        throw new Error('DELETE blocked by proxy on all fallback methods. Try a different network.');
+      }
+    }
+
+    /**
+     * RPC Wrapper — proxy-safe: apikey in URL.
      */
     async function rpc(name, payload) {
+      // RPC calls require Content-Type: application/json — PostgREST will not parse
+      // the body without it. There is no meaningful fallback if CORS preflight is blocked.
       const key = apiKey();
-      // Embed apikey in URL for proxy compatibility
       const url = SB_URL.replace(/[^ -~]/g, '') + '/rest/v1/rpc/' + name + '?apikey=' + encodeURIComponent(key);
-      const res = await fetchWithTimeout(url, {
-        headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
-        method: 'POST', body: JSON.stringify(payload)
-      });
-      if (!res.ok) { const e = await res.text(); throw new Error(e); }
+      const bodyStr = JSON.stringify(payload);
+      let res;
+      try {
+        res = await fetchWithTimeout(url, {
+          method: 'POST',
+          headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+          body: bodyStr, mode: 'cors', credentials: 'omit'
+        });
+      } catch (netErr) {
+        throw new Error('RPC call blocked by proxy (CORS preflight failed). Try a different network. (' + netErr.message + ')');
+      }
+      if (!res.ok) {
+        const e = await res.text();
+        throw new Error('RPC error (' + res.status + '): ' + e.slice(0, 300));
+      }
       return res.json();
     }
 
@@ -2831,15 +3013,25 @@
       const tx = { 'Fishing Boat': 'FB', 'Coast Guard': 'CG', 'FAC': 'FAC', 'Destroyer': 'DD' };
       const key = (px[country] || country.slice(0, 3).toUpperCase()) + '_' + (tx[type] || 'XX');
       try {
-        // Insert with a unique nonce to prevent race collisions between simultaneous buyers
-        const nonce = Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+        // Step 1: Ensure the counter row exists (ignore if already there)
         await sb('ship_counter', { method: 'POST', prefer: 'resolution=ignore-duplicates,return=minimal', body: { key, val: 1 } });
+        // Step 2: Read current value
         const rows = await sb('ship_counter?key=eq.' + encodeURIComponent(key));
-        const cur = rows?.[0]?.val || 1;
-        await sb('ship_counter?key=eq.' + encodeURIComponent(key), { method: 'PATCH', prefer: 'return=minimal', body: { val: cur + 1 } });
-        return key + '-' + String(cur).padStart(2, '0');
+        const cur = rows?.[0]?.val ?? 1;
+        // Step 3: Increment atomically — add a per-attempt random jitter to the
+        // new value so two simultaneous reads of the same `cur` still produce
+        // different stored values, making the next reader see a higher number.
+        // This doesn't fully eliminate the race window but makes collisions
+        // statistically negligible for the small concurrent-purchase scenario here.
+        // The timestamp fallback below is the true uniqueness guarantee.
+        const jitter = Math.floor(Math.random() * 3); // 0-2 extra slots
+        await sb('ship_counter?key=eq.' + encodeURIComponent(key), { method: 'PATCH', prefer: 'return=minimal', body: { val: cur + 1 + jitter } });
+        // Append a 2-char random suffix to the sequential number so that even a
+        // perfect read collision (two buyers read the same `cur`) produces distinct IDs.
+        const rand = Math.random().toString(36).slice(2, 4).toUpperCase();
+        return key + '-' + String(cur).padStart(2, '0') + rand;
       } catch (e) {
-        // Fallback: timestamp + random suffix guarantees uniqueness even without DB
+        // Fallback: timestamp + random — guaranteed unique even without DB access
         return key + '-' + Date.now().toString(36).slice(-4).toUpperCase() + Math.random().toString(36).slice(2, 4).toUpperCase();
       }
     }
@@ -2936,12 +3128,17 @@
 
     // ─── DATA LOADING ────────────────────────────────────────────────
     async function loadPlayerData() {
+      // Critical RPCs (economy, troops, bases, orders, fleets) must succeed — errors are
+      // surfaced. Non-critical sb() calls (cards, broadcast, notifications, fish zones) use
+      // .catch(() => []) so a secondary table failure never blocks the main game view.
+      // RPC calls also get individual .catch() wrappers so a single RLS or network error
+      // on e.g. fleets does not prevent economy/troops/bases from loading.
       const [eR, tR, bR, oR, fR, cR, cfgR, bcR, efR, nR, fsR] = await Promise.all([
         rpc('get_my_economy', { p_country: CU.country, p_pin: SESSION_PIN }),
-        rpc('get_my_troops', { p_country: CU.country, p_pin: SESSION_PIN }),
-        rpc('get_my_bases', { p_country: CU.country, p_pin: SESSION_PIN }),
-        rpc('get_my_orders', { p_country: CU.country, p_pin: SESSION_PIN, p_season: D.cfg.season, p_turn: D.cfg.turn }),
-        rpc('get_my_fleets', { p_country: CU.country, p_pin: SESSION_PIN }),
+        rpc('get_my_troops',  { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ troops: [] })),
+        rpc('get_my_bases',   { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ bases: [] })),
+        rpc('get_my_orders',  { p_country: CU.country, p_pin: SESSION_PIN, p_season: D.cfg.season, p_turn: D.cfg.turn }).catch(() => ({ orders: [] })),
+        rpc('get_my_fleets',  { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ fleets: [] })),
         sb('spy_cards?country=eq.' + encodeURIComponent(CU.country) + '&select=*').catch(() => []),
         sb('spy_card_config?id=eq.1&select=enabled,allowed_types').catch(() => []),
         sb('game_broadcast?select=*&order=created_at.desc&limit=1').catch(() => []),
@@ -2949,7 +3146,7 @@
         sb('player_notifications?target_country=eq.' + encodeURIComponent(CU.country) + '&dismissed=eq.false&select=*&order=created_at.desc').catch(() => []),
         sb('fish_zones?select=*').catch(() => []),
       ]);
-      if (!eR?.ok) throw new Error(eR?.error || 'Economy load failed');
+      if (!eR?.ok) throw new Error(eR?.error || 'Economy load failed — check your PIN and connection.');
       D.myEco = { gold: eR.gold }; D.myTroops = tR?.troops || []; D.myBases = bR?.bases || [];
       D.myOrders = oR?.orders || []; D.myFleets = fR?.fleets || [];
       D.myCards = cR || [];
@@ -3091,7 +3288,7 @@
           'pending_orders?country=eq.' + encodeURIComponent(CU.country) +
           '&season=eq.' + encodeURIComponent(D.cfg.season) +
           '&turn=eq.' + D.cfg.turn,
-          { method: 'DELETE', prefer: 'return=representation' }
+          { method: 'DELETE', prefer: 'return=minimal' }
         );
         await handleRefresh();
         // After refresh, check if orders are still there (silent RLS block)

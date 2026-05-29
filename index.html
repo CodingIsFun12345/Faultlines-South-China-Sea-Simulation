@@ -2290,11 +2290,12 @@
               event).</div>
             <div class="g2 mt8">
               <div class="fg"><label>Zone</label>
-                <select id="fz-edit-zone" title="Select zone to edit">
+                <select id="fz-edit-zone" title="Select zone to edit" onchange="gmFzEditZoneChanged()">
                   <option value="">— select —</option>
                 </select>
               </div>
-              <div class="fg"><label>New Stock Value</label>
+              <div class="fg"><label>New Stock Value <span id="fz-edit-cap-hint"
+                    style="color:var(--text2);font-size:9px;"></span></label>
                 <input type="number" id="fz-edit-val" min="0" max="30" placeholder="e.g. 8" style="width:90px;">
               </div>
             </div>
@@ -2648,7 +2649,7 @@
     const NEUTRAL_ZONES = new Set(['Green Neutral Zone', 'Orange Neutral Zone', 'Blue Neutral Zone', 'Purple Neutral Zone']);
     function projectFish(current, cap, harvest, asInt = false, zone = '') {
       const isNeutral = NEUTRAL_ZONES.has(zone);
-      const r = isNeutral ? 1.25 : 0.75;
+      const r = isNeutral ? 2.5 : 1.25;
       const phase = isNeutral ? 2 : 0;  // phase shift: slows early growth, fades at higher stock
       const growth = r * Math.max(0, current - phase) * (1 - current / cap);
       const raw = current + growth - harvest;
@@ -2786,8 +2787,8 @@
       // which silently drops all data. Only spread plain objects.
       let bodyObj = opts.body
         ? (typeof opts.body === 'string'
-            ? JSON.parse(opts.body)
-            : Array.isArray(opts.body) ? opts.body : { ...opts.body })
+          ? JSON.parse(opts.body)
+          : Array.isArray(opts.body) ? opts.body : { ...opts.body })
         : {};
 
       const preferVal = opts.prefer || 'return=minimal';
@@ -2800,7 +2801,7 @@
 
       // Route by method
       if (method === 'DELETE') return _sbDelete(urlWithParams, key, preferVal);
-      if (method === 'PATCH')  return _sbPatch(urlWithParams, key, preferVal, path, bodyObj);
+      if (method === 'PATCH') return _sbPatch(urlWithParams, key, preferVal, path, bodyObj);
       if (method === 'GET') {
         const res = await fetchWithTimeout(urlWithParams, {
           method: 'GET',
@@ -3135,10 +3136,10 @@
       // on e.g. fleets does not prevent economy/troops/bases from loading.
       const [eR, tR, bR, oR, fR, cR, cfgR, bcR, efR, nR, fsR] = await Promise.all([
         rpc('get_my_economy', { p_country: CU.country, p_pin: SESSION_PIN }),
-        rpc('get_my_troops',  { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ troops: [] })),
-        rpc('get_my_bases',   { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ bases: [] })),
-        rpc('get_my_orders',  { p_country: CU.country, p_pin: SESSION_PIN, p_season: D.cfg.season, p_turn: D.cfg.turn }).catch(() => ({ orders: [] })),
-        rpc('get_my_fleets',  { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ fleets: [] })),
+        rpc('get_my_troops', { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ troops: [] })),
+        rpc('get_my_bases', { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ bases: [] })),
+        rpc('get_my_orders', { p_country: CU.country, p_pin: SESSION_PIN, p_season: D.cfg.season, p_turn: D.cfg.turn }).catch(() => ({ orders: [] })),
+        rpc('get_my_fleets', { p_country: CU.country, p_pin: SESSION_PIN }).catch(() => ({ fleets: [] })),
         sb('spy_cards?country=eq.' + encodeURIComponent(CU.country) + '&select=*').catch(() => []),
         sb('spy_card_config?id=eq.1&select=enabled,allowed_types').catch(() => []),
         sb('game_broadcast?select=*&order=created_at.desc&limit=1').catch(() => []),
@@ -3469,16 +3470,22 @@
         // Blocked if toxic OR no boats
         const on = cnt > 0 && !isToxic;
         const boatIds = cnt > 0 ? (byZone[z] || []).map(s => s.id).join(', ') : '';
+        const stockRow = (D.fishStocks || []).find(f => f.zone === z);
+        const curStock = stockRow ? stockRow.stock : (ZONE_FISH_DATA[z]?.initial ?? '?');
+        const capVal = stockRow ? stockRow.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
+        const stockColor = isToxic ? 'var(--text2)' : (curStock < 3 ? 'var(--red)' : curStock < 6 ? 'var(--gold)' : 'var(--green)');
         html += '<div class="fz-row ' + (isToxic ? 'off' : on ? 'on' : 'off') + '" ' + (isToxic ? 'style="opacity:.5;border-color:rgba(231,111,81,.3);"' : '') + '>'
           + '<div class="fz-dot" style="background:' + (ZONE_COLORS[z] || '#444') + ';' + (isToxic ? 'filter:grayscale(1);' : '') + '"></div>'
           + '<div style="flex:1;"><div class="fz-nm">' + z + (isToxic ? ' <span class="spy-badge" style="background:rgba(231,111,81,.2);border-color:rgba(231,111,81,.4);color:#e76f51;">☣️ TOXIC</span>' : '') + '</div>'
           + (cnt > 0 ? '<div style="font-family:var(--fm);font-size:9px;color:var(--text2);">' + boatIds + '</div>' : '')
+          + '<div style="font-family:var(--fm);font-size:9px;margin-top:2px;">Stock: <span style="color:' + stockColor + ';">' + curStock + '</span><span style="color:var(--text2);">/' + capVal + '</span></div>'
           + '</div>'
           + '<div class="fz-ct">' + (isToxic ? 'blocked' : cnt > 0 ? cnt + ' boat' + (cnt > 1 ? 's' : '') : 'none') + '</div>'
           + '<div class="ni">'
           + '<button onclick="adjFish(\'' + z + '\',-1)" ' + (on ? '' : 'disabled') + '>-</button>'
           + '<input type="number" id="fish-' + zi(z) + '" value="0" min="0" max="' + (on ? cnt : 0) + '" style="width:36px;text-align:center;" ' + (on ? '' : 'disabled') + ' oninput="updFish();updFallProj(\'' + z + '\')">' + '<button onclick="adjFish(\'' + z + '\',1)" ' + (on ? '' : 'disabled') + '>+</button>'
           + (on ? '<div id="proj-' + zi(z) + '" style="font-family:var(--fm);font-size:9px;color:var(--text2);text-align:right;margin-top:1px;"></div>' : '')
+          + '</div>'
           + '</div>';
       });
       if (unmapped.length) html += '<div class="al aw" style="font-size:11px;margin-top:8px;">' + unmapped.length + ' boat(s) on unmapped tiles: ' + unmapped.map(s => s.id).join(', ') + '. Ask GM.</div>';
@@ -4698,12 +4705,24 @@
     }
 
     /** GM sets fish stock for a zone directly in the DB */
+    function gmFzEditZoneChanged() {
+      const zone = document.getElementById('fz-edit-zone').value;
+      const inp = document.getElementById('fz-edit-val');
+      const hint = document.getElementById('fz-edit-cap-hint');
+      if (!zone) { inp.max = 30; if (hint) hint.textContent = ''; return; }
+      const capVal = (D.fishStocks || []).find(f => f.zone === zone)?.capacity || ZONE_FISH_DATA[zone]?.cap || 15;
+      const curStock = (D.fishStocks || []).find(f => f.zone === zone)?.stock ?? (ZONE_FISH_DATA[zone]?.initial ?? '?');
+      inp.max = capVal;
+      inp.placeholder = 'max ' + capVal;
+      if (hint) hint.textContent = '(current: ' + curStock + ' / cap: ' + capVal + ')';
+    }
+
     async function gmSetFishStock() {
       const zone = document.getElementById('fz-edit-zone').value;
       const val = parseInt(document.getElementById('fz-edit-val').value);
       const msgEl = document.getElementById('fz-edit-msg');
       if (!zone || isNaN(val) || val < 0) { showAl(msgEl, 'Select a zone and enter a valid value.', 'aw'); msgEl.classList.remove('hidden'); return; }
-      const cap = getCap ? getCap(zone) : (ZONE_FISH_DATA[zone]?.cap || 15);
+
       const capVal = (D.fishStocks || []).find(f => f.zone === zone)?.capacity || ZONE_FISH_DATA[zone]?.cap || 15;
       if (val > capVal) { showAl(msgEl, 'Value exceeds carrying capacity (' + capVal + ') for this zone.', 'aw'); msgEl.classList.remove('hidden'); return; }
       showLoad('Updating…');

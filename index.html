@@ -2140,6 +2140,7 @@
           <button class="tab" onclick="showTab('gt-troops',this)">Troops</button>
           <button class="tab" onclick="showTab('gt-bases',this)">Bases</button>
           <button class="tab" onclick="showTab('gt-economy',this)">Economy</button>
+          <button class="tab" onclick="showTab('gt-logs',this);renderLogsTab()">Logs</button>
           <button class="tab" onclick="showTab('gt-fish',this)">Fish Zones</button>
           <button class="tab" onclick="showTab('gt-cards',this)">Spy Cards<span id="cards-dot"></span></button>
           <button class="tab" onclick="showTab('gt-events',this)">Events</button>
@@ -2241,7 +2242,7 @@
               </table>
             </div>
             <div class="dv"></div>
-            <div class="stl">Manual Adjustment</div>
+            <div class="stl mt14">Manual Adjustment</div>
             <div class="fl" style="gap:8px;align-items:flex-end;flex-wrap:wrap;">
               <div class="fg" style="margin:0;"><label>Country</label>
                 <select id="adj-c" style="width:130px;" title="Country for manual adjustment">
@@ -2261,9 +2262,7 @@
                   style="width:160px;"></div>
               <button class="btn btn-o btn-sm" onclick="applyAdj()">Apply</button>
             </div>
-            <div class="stl mt14">Log</div>
-            <div id="eco-log" class="tm mu fs11 max-h180">
-            </div>
+            <div id="adj-msg" class="hidden mt8"></div>
           </div>
           <div class="card">
             <div class="card-title">Export CSV</div>
@@ -2271,6 +2270,69 @@
               <button class="btn btn-o btn-sm" onclick="exTroops()">Troops</button>
               <button class="btn btn-o btn-sm" onclick="exEco()">Economy</button>
               <button class="btn btn-o btn-sm" onclick="exBases()">Bases</button>
+            </div>
+          </div>
+        </div>
+        <div id="gt-logs" class="tp">
+          <div class="card">
+            <div class="card-title">Game Log
+              <button class="btn btn-o btn-sm" onclick="loadGMData().then(()=>renderLogsTab())">↻ Refresh</button>
+            </div>
+            <div class="rn">Full history of economy events, orders submitted, troop purchases, movements, and gold
+              transfers. Filter by country and/or type.</div>
+            <div class="fl" style="gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:flex-end;">
+              <div class="fg" style="margin:0;">
+                <label>Country</label>
+                <select id="log-f-country" onchange="renderLogsTab()" style="width:150px;" title="Filter by country">
+                  <option value="all">All countries</option>
+                  <option>China</option>
+                  <option>Taiwan</option>
+                  <option>Philippines</option>
+                  <option>Malaysia</option>
+                  <option>Indonesia</option>
+                  <option>Thailand</option>
+                  <option>Cambodia</option>
+                  <option>Vietnam</option>
+                </select>
+              </div>
+              <div class="fg" style="margin:0;">
+                <label>Type</label>
+                <select id="log-f-type" onchange="renderLogsTab()" style="width:170px;" title="Filter by event type">
+                  <option value="all">All types</option>
+                  <option value="income">Income</option>
+                  <option value="purchase">Ship Purchases</option>
+                  <option value="base">Base Construction</option>
+                  <option value="transfer">Gold Transfers</option>
+                  <option value="fishing">Fishing Orders</option>
+                  <option value="movement">Movement Orders</option>
+                  <option value="card">Spy Cards</option>
+                  <option value="adj">Manual Adjustments</option>
+                </select>
+              </div>
+              <div class="fg" style="margin:0;">
+                <label>Turn</label>
+                <select id="log-f-turn" onchange="renderLogsTab()" style="width:100px;" title="Filter by turn">
+                  <option value="all">All turns</option>
+                </select>
+              </div>
+              <button class="btn btn-o btn-sm"
+                onclick="document.getElementById('log-f-country').value='all';document.getElementById('log-f-type').value='all';document.getElementById('log-f-turn').value='all';renderLogsTab()">Clear</button>
+            </div>
+            <div id="logs-count" class="tm mu" style="font-size:10px;margin-bottom:8px;"></div>
+            <div style="overflow-x:auto;">
+              <table class="tbl" id="logs-table">
+                <thead>
+                  <tr>
+                    <th>Turn</th>
+                    <th>Season</th>
+                    <th>Country</th>
+                    <th>Type</th>
+                    <th>Detail</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody id="logs-body"></tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -2649,9 +2711,10 @@
     const NEUTRAL_ZONES = new Set(['Green Neutral Zone', 'Orange Neutral Zone', 'Blue Neutral Zone', 'Purple Neutral Zone']);
     function projectFish(current, cap, harvest, asInt = false, zone = '') {
       const isNeutral = NEUTRAL_ZONES.has(zone);
-      const r = isNeutral ? 2.5 : 1.25;
-      const phase = isNeutral ? 2 : 0;  // phase shift: slows early growth, fades at higher stock
-      const growth = r * Math.max(0, current - phase) * (1 - current / cap);
+      const r = isNeutral ? 1.5 : 0.8;
+      const phase = isNeutral ? 1 : 0;  // phase shift: slows early neutral zone growth for balance
+      // Use cap+1 as the logistic ceiling so stock always approaches but never reaches cap
+      const growth = r * Math.max(0, current - phase) * (1 - current / (cap + 1));
       const raw = current + growth - harvest;
       // asInt=true for DB writes; false keeps one decimal for simulator display
       return asInt ? Math.max(0, Math.floor(raw)) : Math.max(0, Math.round(raw * 10) / 10);
@@ -3489,7 +3552,11 @@
           + '</div>';
       });
       if (unmapped.length) html += '<div class="al aw" style="font-size:11px;margin-top:8px;">' + unmapped.length + ' boat(s) on unmapped tiles: ' + unmapped.map(s => s.id).join(', ') + '. Ask GM.</div>';
-      document.getElementById('fall-zones').innerHTML = html; updFish();
+      document.getElementById('fall-zones').innerHTML = html;
+      // Explicitly reset all inputs to 0 — browsers can restore previous values from
+      // form cache even when innerHTML is replaced if element IDs match
+      ALL_ZONES.forEach(z => { const el = document.getElementById('fish-' + zi(z)); if (el) el.value = 0; });
+      updFish();
     }
     function adjFish(z, d) { const i = document.getElementById('fish-' + zi(z)); if (!i || i.disabled) return; i.value = Math.max(0, Math.min(parseInt(i.max || 0), parseInt(i.value || 0) + d)); updFish(); updFallProj(z); }
     function updFish() { let t = 0; ALL_ZONES.forEach(z => { t += parseInt(document.getElementById('fish-' + zi(z))?.value || 0); }); const bi = BASE_INCOME[CU?.country] || 0; document.getElementById('f-fish').textContent = t; document.getElementById('f-tot').textContent = bi + t; }
@@ -3771,6 +3838,8 @@
       document.getElementById('gm-sv').textContent = s.charAt(0).toUpperCase() + s.slice(1);
       setSeasonChip(s);
       rConflicts(); rGMOverview(); renderOrders(); renderTroops(); renderBases(); renderEconomy(); rPins(); rSetupTab(); renderGMCards(); renderBroadcasts();
+      // Re-render logs tab if it's currently active
+      if (document.getElementById('gt-logs')?.classList.contains('on')) renderLogsTab();
       const cnt = D.allOrders.length;
       document.getElementById('orders-dot').innerHTML = cnt > 0 ? '<span class="nd"></span>' : '';
       // Update next-season button label
@@ -3914,9 +3983,141 @@
           '<td class="tm">+' + BASE_INCOME[c] + '</td><td class="tgr tm">+' + fish + '</td>' +
           '<td class="tm">' + (fishLog ? fish + 'g (fish T' + fishLog.turn + ')' : '—') + '</td></tr>';
       }).join('');
-      document.getElementById('eco-log').innerHTML = D.allEcoLog.slice(0, 25)
-        .map(l => '[T' + l.turn + '] ' + (FLAGS[l.country] || '') + l.country + ': ' + l.note).join('<br>')
-        || '<span class="mu">No entries yet.</span>';
+      // Economy log is now rendered in the Logs tab via renderLogsTab()
+    }
+
+    // ─── LOGS TAB ──────────────────────────────────────────────────────
+    const LOG_TYPE_META = {
+      income: { label: 'Income', badge: 'bgr', icon: '💰' },
+      purchase: { label: 'Ship Purchase', badge: 'bt', icon: '⚓' },
+      base: { label: 'Base Constr.', badge: 'bam', icon: '🏗' },
+      transfer: { label: 'Gold Transfer', badge: 'bgo', icon: '💸' },
+      fishing: { label: 'Fishing Order', badge: 'bt', icon: '🎣' },
+      movement: { label: 'Movement Order', badge: 'bt', icon: '🚢' },
+      card: { label: 'Spy Card', badge: 'bgy', icon: '🃏' },
+      adj: { label: 'Adjustment', badge: 'bgo', icon: '✏️' },
+    };
+
+    // Map economy_log `type` + note patterns to the unified log type filter
+    function ecoLogToType(entry) {
+      if (entry.type === 'transfer') return 'transfer';
+      if (entry.type === 'purchase') return 'purchase';
+      if (entry.type === 'base') return 'base';
+      if (entry.type === 'card') return 'card';
+      if (entry.type === 'adj') return 'adj';
+      if (entry.type === 'income' && (entry.note || '').includes('fish')) return 'fishing';
+      return 'income';
+    }
+
+    // Build unified log entries from economy_log + resolved pending orders snapshot
+    function buildUnifiedLog() {
+      const entries = [];
+
+      // Economy log entries
+      (D.allEcoLog || []).forEach(l => {
+        entries.push({
+          turn: l.turn,
+          season: l.season || inferSeason(l.type),
+          country: l.country,
+          type: ecoLogToType(l),
+          detail: l.note || '—',
+          amount: l.amount,
+          ts: l.created_at || '',
+        });
+      });
+
+      // Pending orders (current turn — these haven't been resolved yet)
+      (D.allOrders || []).forEach(o => {
+        const p = o.payload || {};
+        const turn = D.cfg?.turn || 0;
+        const season = D.cfg?.season || '';
+
+        if (p.fish) {
+          const zones = Object.entries(p.fish).map(([z, v]) => z + ': ' + v + ' boat' + (v > 1 ? 's' : '')).join(', ');
+          entries.push({ turn, season, country: o.country, type: 'fishing', detail: zones || 'No zones', amount: null, ts: o.submitted_at || '' });
+        }
+        if (p.purchases && p.purchases.length) {
+          const ships = p.purchases.map(x => x.qty + '×' + x.type).join(', ');
+          entries.push({ turn, season, country: o.country, type: 'purchase', detail: ships + ' (−' + p.total + 'g, pending)', amount: -p.total, ts: o.submitted_at || '' });
+        }
+        if (p.base_construction) {
+          entries.push({ turn, season, country: o.country, type: 'base', detail: 'Base at anchor ' + p.base_construction.anchor_ship + ' (pending)', amount: -8, ts: o.submitted_at || '' });
+        }
+        if (p.moves || p.fleetMoves) {
+          const fleets = Object.entries(p.fleetMoves || {}).map(([fid, fm]) => 'Fleet "' + fm.name + '" → tile ' + fm.dest + ' (' + (fm.ship_ids || []).length + ' ships)');
+          const solos = Object.entries(p.moves || {}).filter(([id, m]) => !m.fleet).map(([id, m]) => id + ': ' + m.from + '→' + m.to);
+          const detail = [...fleets, ...solos].join('; ') || 'No moves';
+          entries.push({ turn, season, country: o.country, type: 'movement', detail, amount: null, ts: o.submitted_at || '' });
+        }
+      });
+
+      // Sort newest first (by turn desc, then timestamp desc)
+      entries.sort((a, b) => {
+        if (b.turn !== a.turn) return b.turn - a.turn;
+        return (b.ts || '').localeCompare(a.ts || '');
+      });
+
+      return entries;
+    }
+
+    function inferSeason(type) {
+      if (type === 'purchase' || type === 'base') return 'winter';
+      if (type === 'income' || type === 'fishing') return 'fall';
+      return '';
+    }
+
+    function renderLogsTab() {
+      const countryF = document.getElementById('log-f-country')?.value || 'all';
+      const typeF = document.getElementById('log-f-type')?.value || 'all';
+      const turnF = document.getElementById('log-f-turn')?.value || 'all';
+
+      const all = buildUnifiedLog();
+
+      // Populate turn filter dropdown dynamically
+      const turns = [...new Set(all.map(e => e.turn))].sort((a, b) => b - a);
+      const turnSel = document.getElementById('log-f-turn');
+      if (turnSel) {
+        const cur = turnSel.value;
+        turnSel.innerHTML = '<option value="all">All turns</option>'
+          + turns.map(t => '<option value="' + t + '"' + (String(t) === cur ? ' selected' : '') + '>Turn ' + t + '</option>').join('');
+      }
+
+      // Filter
+      const filtered = all.filter(e => {
+        if (countryF !== 'all' && e.country !== countryF) return false;
+        if (typeF !== 'all' && e.type !== typeF) return false;
+        if (turnF !== 'all' && String(e.turn) !== turnF) return false;
+        return true;
+      });
+
+      const countEl = document.getElementById('logs-count');
+      if (countEl) countEl.textContent = filtered.length + ' entries' + (filtered.length < all.length ? ' (filtered from ' + all.length + ')' : '');
+
+      const tbody = document.getElementById('logs-body');
+      if (!tbody) return;
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="mu p12" style="text-align:center;">No log entries match the current filters.</td></tr>';
+        return;
+      }
+
+      const SEASON_COLORS = { fall: 'var(--gold)', winter: '#8ecae6', spring: 'var(--green)', summer: 'var(--red)', setup: 'var(--text2)' };
+
+      tbody.innerHTML = filtered.map(e => {
+        const meta = LOG_TYPE_META[e.type] || { label: e.type, badge: 'bt', icon: '•' };
+        const amtHtml = e.amount != null
+          ? '<span style="color:' + (e.amount >= 0 ? 'var(--green)' : 'var(--red)') + ';font-family:var(--fm);">' + (e.amount >= 0 ? '+' : '') + e.amount + 'g</span>'
+          : '<span class="mu">—</span>';
+        const seasonColor = SEASON_COLORS[e.season] || 'var(--text2)';
+        const seasonLabel = e.season ? e.season.charAt(0).toUpperCase() + e.season.slice(1) : '—';
+        return '<tr>'
+          + '<td class="tm" style="white-space:nowrap;">T' + e.turn + '</td>'
+          + '<td style="color:' + seasonColor + ';font-size:10px;font-family:var(--fm);white-space:nowrap;">' + seasonLabel + '</td>'
+          + '<td style="white-space:nowrap;">' + (FLAGS[e.country] || '') + ' ' + e.country + '</td>'
+          + '<td><span class="badge ' + meta.badge + '">' + meta.icon + ' ' + meta.label + '</span></td>'
+          + '<td class="fs11 mu" style="max-width:320px;">' + e.detail + '</td>'
+          + '<td style="white-space:nowrap;">' + amtHtml + '</td>'
+          + '</tr>';
+      }).join('');
     }
     function rPins() {
       const rows = [['gm', 'GM'], ...COUNTRIES.map(c => [c, FLAGS[c] + ' ' + c])];
@@ -4002,17 +4203,18 @@
             await sb('active_effects?id=eq.' + id, { method: 'DELETE', prefer: 'return=minimal' });
             log.push('Effect #' + id + ' expired.');
           }
-          // Update fish stocks in DB after harvest (logistic growth applied)
+          // Update fish stocks in DB after harvest — growth already applied at Summer→Fall transition,
+          // so here we only subtract the harvest (clamped to 0).
           for (const z of ALL_ZONES) {
             const row = (D.fishStocks || []).find(f => f.zone === z);
             const curStock = row ? row.stock : (ZONE_FISH_DATA[z]?.initial ?? 0);
             const capVal = row ? row.capacity : (ZONE_FISH_DATA[z]?.cap ?? 15);
             const zoneOrders = orders.filter(o => !toxicZones.has(z));
             const harvestForZone = zoneOrders.reduce((sum, o) => sum + (o.payload?.fish?.[z] || 0), 0);
-            const nextStock = projectFish(curStock, capVal, harvestForZone, true, z);
+            const nextStock = Math.max(0, Math.floor(curStock - harvestForZone));
             await sb('fish_zones', { method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal', body: { zone: z, stock: nextStock, capacity: capVal, last_updated_turn: turn } });
           }
-          log.push('Fish stocks updated for all zones.');
+          log.push('Fish stocks updated for all zones (harvest applied).');
         } else if (s === 'winter') {
           // Sabotaged bases cannot spawn ships this winter
           const sabotageBaseIds = new Set((D.activeEffects || []).filter(e => e.type === 'sabotage_base').map(e => e.target_base_id));
@@ -4404,10 +4606,10 @@
         const fillPct = Math.min(100, Math.round(stock / cap * 100));
         const id = zid(z);
 
-        // Default projection at current harvest rate (5 turns)
+        // Default projection at zero harvest (natural growth, no fishing assumed)
         const projDefault = [];
         let cur = stock;
-        for (let i = 0; i < 5; i++) { cur = projectFish(cur, cap, baseHarvest, false, z); projDefault.push(cur); }
+        for (let i = 0; i < 5; i++) { cur = projectFish(cur, cap, 0, false, z); projDefault.push(cur); }
 
         const effectBadges =
           (isToxic ? '<span class="spy-badge" style="background:rgba(231,111,81,.15);border-color:rgba(231,111,81,.3);color:#e76f51;margin-left:6px;">TOXIC</span>' : '')
@@ -4443,7 +4645,7 @@
 
           // Current projection row (static, based on actual boats)
           + '<div class="fz-proj">'
-          + '<div style="font-family:var(--fm);font-size:10px;color:var(--text2);margin-right:2px;align-self:center;">Actual →</div>'
+          + '<div style="font-family:var(--fm);font-size:10px;color:var(--text2);margin-right:2px;align-self:center;">Natural →</div>'
           + projDefault.map((v, i) => {
             const ph = fishHealth(v, cap);
             const prev = i === 0 ? stock : projDefault[i - 1];
@@ -4456,11 +4658,17 @@
           // ── Interactive simulator — per-turn harvest inputs ──
           + '<div class="fz-sim">'
           + '<div class="fz-sim-title">Harvest Simulator <span style="font-family:var(--fm);font-size:9px;color:var(--text2);font-weight:400;letter-spacing:0;">— set fish removed each turn</span></div>'
+          + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;flex-wrap:wrap;">'
+          + '<span style="font-family:var(--fm);font-size:9px;color:var(--text2);">Fill all turns:</span>'
+          + '<input class="fz-sim-input" id="' + id + '-fill-val" type="number" min="0" max="' + cap + '" value="' + boatCount + '" style="width:42px;" placeholder="0" />'
+          + '<button class="btn btn-o btn-sm" style="padding:2px 8px;font-size:9px;" onclick="fillFzSim(\'' + id + '\', ' + cap + ')">Fill</button>'
+          + '<button class="btn btn-o btn-sm" style="padding:2px 8px;font-size:9px;" onclick="clearFzSim(\'' + id + '\', ' + cap + ')">Clear</button>'
+          + '</div>'
           + '<div class="fz-sim-row" style="flex-wrap:wrap;gap:6px;align-items:flex-end;">'
           + [1, 2, 3, 4, 5, 6, 7, 8].map(function (t) {
             return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">'
               + '<span style="font-family:var(--fm);font-size:8px;color:var(--text2);">T+' + t + '</span>'
-              + '<input class="fz-sim-input" id="' + id + '-inp-t' + t + '" type="number" min="0" max="' + cap + '" value="' + baseHarvest + '" style="width:38px;" oninput="updateFzSim(this)" />'
+              + '<input class="fz-sim-input" id="' + id + '-inp-t' + t + '" type="number" min="0" max="' + cap + '" value="0" style="width:38px;" oninput="updateFzSim(this)" />'
               + '</div>';
           }).join('')
           + '<span class="fz-sim-label" id="' + id + '-hinf" style="color:#f4a261;align-self:flex-end;padding-bottom:2px;"></span>'
@@ -4548,9 +4756,9 @@
 
       // Sustainability info — mirrors projectFish logic including phase shift
       const _isNeutral = ['Green Neutral Zone', 'Orange Neutral Zone', 'Blue Neutral Zone', 'Purple Neutral Zone'].includes(zone);
-      const _r = _isNeutral ? 1.25 : 0.75;
-      const _phase = _isNeutral ? 2 : 0;
-      const growthAtStock = _r * Math.max(0, stock - _phase) * (1 - stock / cap);
+      const _r = _isNeutral ? 1.5 : 0.8;
+      const _phase = _isNeutral ? 1 : 0;
+      const growthAtStock = _r * Math.max(0, stock - _phase) * (1 - stock / (cap + 1));
       const maxSustainable = Math.floor(growthAtStock + 0.001);
       if (hinfEl) hinfEl.textContent = 'max sustainable: ~' + maxSustainable + '/turn';
 
@@ -4571,7 +4779,27 @@
       if (warnEl) warnEl.textContent = warn;
     }
 
-    /** Toggles the fish zone panel in player view */
+    /** Fills all 8 per-turn harvest inputs for a zone with the value in the fill box, then reruns the sim */
+    function fillFzSim(id, cap) {
+      const fillInp = document.getElementById(id + '-fill-val');
+      const val = Math.max(0, Math.min(cap, parseInt(fillInp?.value) || 0));
+      for (let t = 1; t <= 8; t++) {
+        const inp = document.getElementById(id + '-inp-t' + t);
+        if (inp) inp.value = val;
+      }
+      updateFzSim(document.getElementById(id + '-inp-t1'));
+    }
+
+    /** Clears all 8 per-turn harvest inputs for a zone back to 0, then reruns the sim */
+    function clearFzSim(id) {
+      for (let t = 1; t <= 8; t++) {
+        const inp = document.getElementById(id + '-inp-t' + t);
+        if (inp) inp.value = 0;
+      }
+      const fillInp = document.getElementById(id + '-fill-val');
+      if (fillInp) fillInp.value = 0;
+      updateFzSim(document.getElementById(id + '-inp-t1'));
+    }
     function toggleFishZonesPanel() {
       const el = document.getElementById('panel-fish-zones');
       if (!el) return;

@@ -4857,7 +4857,13 @@
         if (!res?.ok) { hideLoad(); showAl(msgEl, 'Current PIN is incorrect.', 'ae'); msgEl.classList.remove('hidden'); return; }
         // Update PIN
         await sb('pins?country=eq.' + encodeURIComponent(loginCountry), { method: 'PATCH', prefer: 'return=minimal', body: { pin_hash: newPin } });
+        // Refresh pins data to ensure the updated PIN is reflected in memory
+        await loadGMData();
+        // Update global SESSION_PIN and sync in-memory pins list
         SESSION_PIN = newPin;
+        // Ensure D.pins contains the updated pin for the current country
+        const pinIndex = (D.pins || []).findIndex(p => p.country === loginCountry);
+        if (pinIndex !== -1) D.pins[pinIndex].pin_hash = newPin; else D.pins.push({ country: loginCountry, pin_hash: newPin });
         hideLoad();
         showAl(msgEl, '✅ PIN updated successfully.', 'as');
         msgEl.classList.remove('hidden');
@@ -5582,4 +5588,4 @@
   </script>
 </body>
 
-</html>
+</html>s

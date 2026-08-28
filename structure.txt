@@ -1,0 +1,30 @@
+# Project Structure Overview
+
+## Frontend (HTML/JS)
+- **`index.html`** – Main entry point. Contains all UI panels (setup, fish zones, gold transfer, rules, change‑pin, etc.).
+  - **Change PIN flow**:
+    - Panel toggled by `toggleChangePinPanel()` (lines ~4831‑4842).
+    - Form fields `cp-current`, `cp-new`, `cp-confirm`.
+    - `submitChangePin()` verifies the current PIN via `rpc('verify_pin', { p_country, p_role, p_pin })` (fixed to include `p_role`) and updates the Supabase `pins` table (`pin_hash` column).
+    - On success updates global `SESSION_PIN`.
+  - **Other panels** (game board, fish zones, gold transfer, etc.) follow similar toggle patterns.
+  - **Supabase helper functions** `sb()` for CRUD and `rpc()` for stored procedures.
+- **`gameboard.html`** – Visual representation of the map and player pieces. Relies on data loaded in `index.html` (global `D` object) and renders tiles, ships, bases, etc.
+
+## Backend (Supabase)
+- **Tables**:
+  - `pins` – Stores `country` and `pin_hash` (plain PIN is stored as hash in the UI, but the current code writes the raw PIN; the fix ensures proper verification before update).
+  - `player_notifications` – Private messages for players.
+  - `economy_log` – Records gold transfers and other economic actions.
+  - `spy_cards`, `troops`, `fish_zones`, etc. – Game state tables accessed throughout the UI.
+- **RPC functions** (called via `rpc()`):
+  - `verify_pin` – Checks that a supplied PIN matches the stored one. The function now expects `p_country`, `p_role`, and `p_pin`.
+  - Other game‑logic RPCs (e.g., `place_starting_base`, `submit_order`) use the global `SESSION_PIN` for authentication.
+
+## Data Flow
+1. **Login** – User enters PIN; `login()` RPC validates and sets `SESSION_PIN`.
+2. **Gameplay** – Actions (orders, base placement, gold transfer) call RPCs with `p_pin: SESSION_PIN`.
+3. **Change PIN** – Player opens the Change PIN panel, enters current and new PINs, `submitChangePin()` verifies current PIN (now with role) and patches the `pins` table. The UI updates `SESSION_PIN` so subsequent actions use the new PIN.
+
+---
+*All data is persisted in Supabase; the HTML files provide the client‑side UI and invoke Supabase via the helper functions.*

@@ -2863,8 +2863,17 @@
         const loginCountry = CU.role === 'gm' ? 'gm' : CU.country;
         const res = await rpc('verify_pin', { p_country: loginCountry, p_pin: current });
         if (!res?.ok) { hideLoad(); showAl(msgEl, 'Current PIN is incorrect.', 'ae'); msgEl.classList.remove('hidden'); return; }
-        // Update PIN
-        await sb('pins?country=eq.' + encodeURIComponent(loginCountry), { method: 'PATCH', prefer: 'return=minimal', body: { pin_hash: newPin } });
+        // Update PIN via a privileged RPC instead of a direct PATCH. Players
+        // only hold the anon key, and `pins` correctly has no anon UPDATE
+        // policy (it stores login credentials) — so the old PATCH here
+        // silently matched 0 rows under RLS while still reporting success
+        // (PostgREST returns 204 either way with return=minimal). GM PIN
+        // changes worked because the GM's service-role key bypasses RLS.
+        // change_pin() runs as SECURITY DEFINER and re-checks the current
+        // PIN server-side before writing, so it works for players without
+        // opening the pins table itself up to anon writes. See change_pin.sql.
+        const changeRes = await rpc('change_pin', { p_country: loginCountry, p_current_pin: current, p_new_pin: newPin });
+        if (!changeRes?.ok) { hideLoad(); showAl(msgEl, changeRes?.error || 'Could not update PIN.', 'ae'); msgEl.classList.remove('hidden'); return; }
         // Refresh pins data to ensure the updated PIN is reflected in memory
         await loadGMData();
         // Update global SESSION_PIN and sync in-memory pins list

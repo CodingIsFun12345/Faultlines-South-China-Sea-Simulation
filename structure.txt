@@ -1,30 +1,107 @@
 # Project Structure Overview
 
 ## Frontend (HTML/JS)
-- **`index.html`** – Main entry point. Contains all UI panels (setup, fish zones, gold transfer, rules, change‑pin, etc.).
-  - **Change PIN flow**:
-    - Panel toggled by `toggleChangePinPanel()` (lines ~4831‑4842).
-    - Form fields `cp-current`, `cp-new`, `cp-confirm`.
-    - `submitChangePin()` verifies the current PIN via `rpc('verify_pin', { p_country, p_role, p_pin })` (fixed to include `p_role`) and updates the Supabase `pins` table (`pin_hash` column).
-    - On success updates global `SESSION_PIN`.
-  - **Other panels** (game board, fish zones, gold transfer, etc.) follow similar toggle patterns.
-  - **Supabase helper functions** `sb()` for CRUD and `rpc()` for stored procedures.
-- **`gameboard.html`** – Visual representation of the map and player pieces. Relies on data loaded in `index.html` (global `D` object) and renders tiles, ships, bases, etc.
+Originally a single `index.html` (~5,600 lines). Now split into four files
+that share one directory:
+
+- **`functions.js`** – Shared function/data library. Loaded by all three
+  HTML pages via `<script src="functions.js">`. Contains:
+  - Game data/config: `TILE_DATA`, `ALL_ZONES`, `ZONE_FISH_DATA`, `SHIP_STATS`,
+    `SPY_CARDS`, `COUNTRIES`, `FLAGS`, `BASE_INCOME`, `EEZ`, `SEASON_ICONS`.
+  - Supabase fetch layer: `sb()` for CRUD, `rpc()` for stored procedures,
+    plus `apiKey()`, `_sbPost()`, `_sbPatch()`, `_sbDelete()`, `fetchWithTimeout()`.
+  - Generic UI helpers: `showLoad()`, `hideLoad()`, `showAl()`, `openMod()`,
+    `closeMod()`, `togglePw()`.
+  - Fish-zone rendering shared by both player and GM views: `renderFishZones()`,
+    `updateFzSim()`, `fillFzSim()`, `clearFzSim()`.
+  - Session state (`SB_SVC`, `SESSION_PIN`, `CU`, `D`) and the cross-page
+    persistence helpers `saveSession()` / `loadSession()` / `clearSession()`
+    (sessionStorage-backed — see Data Flow below).
+  - `logout()` — clears session and redirects to `index.html`.
+  - NOTE: this file organizes code, it is not an access-control boundary.
+    It's still all client-side JS; anyone loading `gm.html` can read it.
+
+- **`index.html`** – Login page only.
+  - Role selector (Player / GM), PIN field, country field (players), GM
+    service-key field (GM).
+  - `doLogin()` validates the form, calls `rpc('verify_pin', { p_country, p_pin })`
+    (no `p_role` param — the code has never actually sent one, despite an
+    earlier version of this doc claiming otherwise), then on success calls
+    `saveSession()` and redirects to `player.html` or `gm.html`.
+  - If a session already exists on load (sessionStorage), redirects straight
+    to the appropriate page instead of showing the form.
+
+- **`player.html`** – Everything a player sees/does. Boots itself on
+  `DOMContentLoaded`: loads the session, bounces to `index.html` if missing
+  or wrong role, then fetches `game_config` + player data and renders.
+  - Setup/Fall/Winter/Spring/Summer season panels, fleet management, order
+    submission, spy card shop and play flow, gold transfer, fish-zones panel,
+    rules panel, and the Change PIN panel.
+  - **Change PIN flow** (unchanged from before): panel toggled by
+    `toggleChangePinPanel()`, fields `cp-current`/`cp-new`/`cp-confirm`,
+    `submitChangePin()` verifies the current PIN via `rpc('verify_pin', ...)`
+    and patches the Supabase `pins` table (`pin_hash` column), then updates
+    `SESSION_PIN`. NOTE: this function calls `loadGMData()` to refresh
+    `D.pins` afterward — a pre-existing cross-reference to a GM-side data
+    loader that was in the original single-file code and has been carried
+    over as-is rather than changed.
+  - `handleRefresh()` here is the player-specific variant (reloads
+    `game_config` + player data, re-renders `renderPlayer()`).
+
+- **`gm.html`** – Everything a GM sees/does. Boots the same way as
+  player.html but loads `loadGMData()` and renders `renderGM()`.
+  - Tabs: Overview/Conflicts, Orders, Troops, Bases, Economy, Logs, Pins,
+    Setup approvals, Spy Cards, Events, Danger Zone (reset/export).
+  - GM game-state actions: `gmMv()`, `gmHP()`, `gmDis()`, `gmSink()`,
+    `gmActBase()`, `gmAddShip()`, `gmAddBase()`, `gmIssueCard()`,
+    `gmResolveCard()`, `gmBroadcast()`, `gmReset()`, `nextSeason()`,
+    `approveTurn()`, etc.
+  - Link to `gameboard.html` (unchanged, opens in a new tab).
+  - `handleRefresh()` here is the GM-specific variant (reloads
+    `game_config` + all GM data, re-renders `renderGM()`).
+
+- **`gameboard.html`** – Visual map/pieces renderer. Untouched by the
+  split — it's fully self-contained and fetches its own data directly from
+  Supabase with the anon key; it does not depend on the other pages.
 
 ## Backend (Supabase)
 - **Tables**:
-  - `pins` – Stores `country` and `pin_hash` (plain PIN is stored as hash in the UI, but the current code writes the raw PIN; the fix ensures proper verification before update).
+  - `pins` – Stores `country` and `pin_hash`.
   - `player_notifications` – Private messages for players.
   - `economy_log` – Records gold transfers and other economic actions.
-  - `spy_cards`, `troops`, `fish_zones`, etc. – Game state tables accessed throughout the UI.
+  - `spy_cards`, `troops`, `fish_zones`, `game_config`, etc. – Game state
+    tables accessed throughout the UI.
 - **RPC functions** (called via `rpc()`):
-  - `verify_pin` – Checks that a supplied PIN matches the stored one. The function now expects `p_country`, `p_role`, and `p_pin`.
-  - Other game‑logic RPCs (e.g., `place_starting_base`, `submit_order`) use the global `SESSION_PIN` for authentication.
+  - `verify_pin` – Checks a supplied PIN against the stored one. Called
+    with `{ p_country, p_pin }` from both `doLogin()` and
+    `submitChangePin()`.
+  - Other game-logic RPCs (e.g. `place_starting_base`, `submit_order`) use
+    the session's `SESSION_PIN` for authentication.
 
 ## Data Flow
-1. **Login** – User enters PIN; `login()` RPC validates and sets `SESSION_PIN`.
-2. **Gameplay** – Actions (orders, base placement, gold transfer) call RPCs with `p_pin: SESSION_PIN`.
-3. **Change PIN** – Player opens the Change PIN panel, enters current and new PINs, `submitChangePin()` verifies current PIN (now with role) and patches the `pins` table. The UI updates `SESSION_PIN` so subsequent actions use the new PIN.
+1. **Login** (`index.html`) – User enters PIN (+ country, or GM service
+   key); `verify_pin` RPC validates; on success `SB_SVC`/`SESSION_PIN`/`CU`
+   are set in memory, `saveSession()` writes them to `sessionStorage`, and
+   the browser navigates to `player.html` or `gm.html`.
+2. **Page load** (`player.html` / `gm.html`) – `loadSession()` reads
+   `sessionStorage` back into memory. Missing session or wrong role →
+   redirect to `index.html`. Otherwise loads `game_config` + role data and
+   renders.
+3. **Gameplay** – Actions (orders, base placement, gold transfer) call RPCs
+   with `p_pin: SESSION_PIN`, same as before.
+4. **Change PIN** (`player.html`) – `submitChangePin()` verifies the
+   current PIN and patches the `pins` table; updates `SESSION_PIN` in
+   memory. **Known gap, pre-existing:** it does not call `saveSession()`,
+   so the updated PIN is not written to `sessionStorage`. This was already
+   true in the original single-file app (where it didn't matter — nothing
+   persisted across a reload anyway), but now that `player.html` reloads
+   read the session back from `sessionStorage`, a refresh right after
+   changing your PIN would restore the *old* PIN into memory. Not changed
+   here since it's pre-existing behavior, but worth a fix if it bites you.
+5. **Logout** – `logout()` (in `functions.js`) clears `sessionStorage` and
+   redirects to `index.html`.
 
 ---
-*All data is persisted in Supabase; the HTML files provide the client‑side UI and invoke Supabase via the helper functions.*
+*All data is persisted in Supabase; `functions.js` provides the shared
+client-side logic, and `index.html` / `player.html` / `gm.html` provide the
+three pages that call it.*
